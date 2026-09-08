@@ -7,6 +7,8 @@ This is a local ADS-B console: an RTL-SDR on **1090 MHz** feeds `dump1090-fa`, a
 
 Default map origin is the DFW metro (`32.9 N, 97.0 W`). Change it in `wargames/config.json`.
 
+![Live DFW metro view on the Wargames ADS-B console](docs/screenshot.jpg)
+
 ## Intent
 
 ADS-B is how airliners broadcast GPS position, altitude, callsign, and heading in the clear. A cheap software-defined radio can hear that downlink. The usual next step is a web map that looks like every other web map. This project is the other next step: a single-purpose scope that feels like a 1983 air-defense display, driven by live Mode S.
