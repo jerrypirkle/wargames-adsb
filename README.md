@@ -1,7 +1,5 @@
 # Wargames ADS-B
 
-![Uploading Screenshot 2026-09-07 at 8.50.21 PM.png…]()
-
 
 Listen to aircraft, and draw them the way NORAD looked in *WarGames*.
 
