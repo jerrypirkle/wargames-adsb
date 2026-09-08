@@ -259,6 +259,14 @@ aside {
 #tracks tr.stale td { color: var(--muted); }
 #tracks tr.emerg td { color: var(--red); animation: blink 0.7s step-end infinite; }
 #tracks .num { text-align: right; font-variant-numeric: tabular-nums; }
+#tracks td.max,
+#tracks tr:hover td.max,
+#tracks tr.sel td.max,
+#tracks tr.stale td.max,
+#tracks tr.emerg td.max {
+  color: var(--green);
+  text-shadow: 0 0 8px var(--green);
+}
 
 #detail {
   border-top: 1px solid var(--line);

@@ -201,6 +201,12 @@ function renderTable(list, rx) {
     if (rb == null) return -1;
     return ra - rb;
   });
+  let maxAlt = -Infinity;
+  let maxGs = -Infinity;
+  for (const ac of rows) {
+    if (ac.alt != null && ac.alt > maxAlt) maxAlt = ac.alt;
+    if (ac.gs != null && ac.gs > maxGs) maxGs = ac.gs;
+  }
   let html = `<table><thead><tr>
     <th>TRACK</th><th class="num">ALT</th><th class="num">GS</th>
     <th class="num">HDG</th><th class="num">NM</th><th class="num">dB</th></tr></thead><tbody>`;
@@ -212,10 +218,12 @@ function renderTable(list, rx) {
       (ac.seen_pos ?? ac.seen ?? 0) > 20 ? "stale" : "",
       ac.emergency && ac.emergency !== "none" ? "emerg" : "",
     ].filter(Boolean).join(" ");
+    const altMax = ac.alt != null && ac.alt === maxAlt;
+    const gsMax = ac.gs != null && ac.gs === maxGs;
     html += `<tr data-hex="${ac.hex}" class="${cls}">
       <td>${esc(call)}</td>
-      <td class="num">${formatAlt(ac.alt)}</td>
-      <td class="num">${ac.gs != null ? Math.round(ac.gs) : "—"}</td>
+      <td class="num${altMax ? " max" : ""}">${formatAlt(ac.alt)}</td>
+      <td class="num${gsMax ? " max" : ""}">${ac.gs != null ? Math.round(ac.gs) : "—"}</td>
       <td class="num">${ac.track != null ? String(Math.round(ac.track)).padStart(3, "0") : "—"}</td>
       <td class="num">${rng != null ? rng.toFixed(1) : "—"}</td>
       <td class="num">${ac.rssi != null ? ac.rssi.toFixed(0) : "—"}</td>
