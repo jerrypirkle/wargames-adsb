@@ -98,5 +98,11 @@ for i in 1 2 3 4 5 6 7 8 9 10; do
 done
 
 echo "Wargames console  http://127.0.0.1:${PORT}/"
+if command -v tailscale >/dev/null 2>&1; then
+  TS_IP=$(tailscale ip -4 2>/dev/null | awk '/^100\./{print; exit}')
+  if [[ -n "${TS_IP:-}" ]]; then
+    echo "  tailscale        http://${TS_IP}:${PORT}/"
+  fi
+fi
 open "http://127.0.0.1:${PORT}/" 2>/dev/null || true
 wait "$SERVER_PID"

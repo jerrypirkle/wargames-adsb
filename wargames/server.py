@@ -15,6 +15,7 @@ import json
 import math
 import os
 import socket
+import subprocess
 import threading
 import time
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -29,6 +30,24 @@ DEFAULT_CONFIG = ROOT / "config.json"
 DEG = math.pi / 180.0
 
 
+def tailscale_ipv4() -> str | None:
+    """Return this host's Tailscale IPv4, or None if tailscale isn't up."""
+    try:
+        out = subprocess.check_output(
+            ["tailscale", "ip", "-4"],
+            stderr=subprocess.DEVNULL,
+            timeout=2,
+            text=True,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    for line in out.splitlines():
+        line = line.strip()
+        if line.startswith("100."):
+            return line
+    return None
+
+
 def load_config(path: Path) -> dict[str, Any]:
     cfg = {
         "lat": 32.9,
@@ -39,6 +58,7 @@ def load_config(path: Path) -> dict[str, Any]:
         "sbs_host": "127.0.0.1",
         "sbs_port": 30003,
         "json_dir": "run",
+        "bind": "0.0.0.0",
     }
     if path.is_file():
         cfg.update(json.loads(path.read_text()))
@@ -495,6 +515,11 @@ def main() -> None:
     cfg = load_config(DEFAULT_CONFIG)
     parser = argparse.ArgumentParser(description="Wargames ADS-B CRT console")
     parser.add_argument("--port", type=int, default=int(cfg["port"]))
+    parser.add_argument(
+        "--bind",
+        default=str(cfg.get("bind") or "0.0.0.0"),
+        help="Listen address (default 0.0.0.0 so Tailscale and localhost both work)",
+    )
     parser.add_argument("--lat", type=float, default=float(cfg["lat"]))
     parser.add_argument("--lon", type=float, default=float(cfg["lon"]))
     parser.add_argument("--sbs-host", default=str(cfg["sbs_host"]))
@@ -526,9 +551,13 @@ def main() -> None:
         t.start()
 
     ThreadingHTTPServer.allow_reuse_address = True
-    httpd = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
+    httpd = ThreadingHTTPServer((args.bind, args.port), Handler)
     httpd.daemon_threads = True
+    ts = tailscale_ipv4()
     print(f"Wargames console  http://127.0.0.1:{args.port}")
+    if ts:
+        print(f"  tailscale  http://{ts}:{args.port}/")
+    print(f"  bind   {args.bind}:{args.port}")
     print(f"  origin {args.lat:.4f} {args.lon:.4f}   SBS {args.sbs_host}:{args.sbs_port}")
     print(f"  json   {json_dir}")
     if args.demo:

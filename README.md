@@ -43,6 +43,8 @@ Any other process that has claimed the dongle (CubicSDR, GQRX, `rtl_tcp`, anothe
 
 Then open [http://127.0.0.1:8090/](http://127.0.0.1:8090/).
 
+The UI listens on `0.0.0.0:8090`, so it is also reachable over **Tailscale** at `http://<this-device-tailscale-ip>:8090/` (`tailscale ip -4`). dump1090 stays local; only the map port needs to be reachable. If macOS Firewall prompts, allow incoming for Python.
+
 If you already like the terminal table:
 
 ```bash
