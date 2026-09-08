@@ -245,6 +245,12 @@ function renderDetail(ac, rx) {
   const rng = rngOf(ac, rx);
   const brg = ac.lat != null ? bearingDeg(rx.lat, rx.lon, ac.lat, ac.lon) : null;
   const call = (ac.flight || "UNKNOWN").trim();
+  const radar = airnavUrl(ac.flight);
+  const plane = radar
+    ? `<a class="airnav-link" href="${esc(radar)}" target="_blank" rel="noopener noreferrer" title="Open ${esc(call)} on AirNav Radar">
+         <img src="img/plane.png" alt="AirNav Radar" width="64" height="32">
+       </a>`
+    : "";
   detailEl.innerHTML = `<h2>${esc(call)}</h2>
     <div class="kv">
       <span class="k">ICAO</span><span class="v hi">${ac.hex.toUpperCase()}</span>
@@ -258,13 +264,44 @@ function renderDetail(ac, rx) {
       <span class="k">SEEN</span><span class="v">${(ac.seen ?? 0).toFixed(1)}s</span>
       <span class="k">MSGS</span><span class="v">${ac.msgs ?? "—"}</span>
       <span class="k">CAT</span><span class="v">${ac.category || ac.type || "—"}</span>
-    </div>`;
+    </div>
+    ${plane}`;
 }
 
 function esc(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
   }[c]));
+}
+
+// ADS-B callsigns are ICAO (DAL1365). AirNav Radar flight pages use IATA (DL1365).
+const ICAO_IATA = {
+  AAL: "AA", DAL: "DL", UAL: "UA", SWA: "WN", FFT: "F9", NKS: "NK", JBU: "B6",
+  ASA: "AS", HAL: "HA", SCX: "SY", VRD: "VX", AWE: "US",
+  ENY: "MQ", SKW: "OO", JIA: "OH", RPA: "YX", ASH: "YV", QXE: "QX",
+  EDV: "9E", ASQ: "EV", PDT: "PT", LOF: "YX", TCF: "YV", CPZ: "CP",
+  BAW: "BA", AFR: "AF", KLM: "KL", DLH: "LH", IBE: "IB", VIR: "VS", EIN: "EI",
+  UAE: "EK", QTR: "QR", ETD: "EY", SIA: "SQ", CPA: "CX", ANA: "NH", JAL: "JL",
+  QFA: "QF", ACA: "AC", AMX: "AM", VOI: "Y4", VIV: "VB",
+  FDX: "FX", UPS: "5X", GTI: "5Y", NCR: "N8", ATN: "8C",
+  CSA: "OK", SAS: "SK", FIN: "AY", AUA: "OS", SWR: "LX", TAP: "TP",
+  THY: "TK", AEE: "A3", WZZ: "W6", RYR: "FR", EZY: "U2",
+  CES: "MU", CCA: "CA", CSN: "CZ", AIC: "AI", PAL: "PR", KAL: "KE", AAR: "OZ",
+};
+
+function airnavUrl(flight) {
+  const cs = (flight || "").trim().toUpperCase().replace(/\s+/g, "");
+  if (!cs || cs === "UNKNOWN") return null;
+  if (/^N[0-9]{1,5}[A-Z]{0,2}$/.test(cs)) {
+    return `https://www.airnavradar.com/data/registration/${cs}`;
+  }
+  const m = cs.match(/^([A-Z]{2,3})(\d{1,4}[A-Z]?)$/);
+  if (!m) return `https://www.airnavradar.com/data/flights/${encodeURIComponent(cs)}`;
+  const prefix = m[1];
+  const num = m[2];
+  const iata = ICAO_IATA[prefix] || (prefix.length === 2 ? prefix : null);
+  if (iata) return `https://www.airnavradar.com/data/flights/${iata}${num}`;
+  return `https://www.airnavradar.com/data/flights/${encodeURIComponent(cs)}`;
 }
 
 function select(hex, follow = false) {

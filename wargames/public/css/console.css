@@ -296,6 +296,28 @@ aside {
 #detail .v { color: var(--text); }
 #detail .v.hi { color: var(--cyan); text-shadow: 0 0 6px var(--cyan); }
 
+.airnav-link {
+  display: inline-block;
+  margin-top: 12px;
+  cursor: pointer;
+  line-height: 0;
+}
+.airnav-link img {
+  width: 64px;
+  height: 32px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 0 6px var(--cyan));
+  pointer-events: none;
+}
+.airnav-link:hover img {
+  filter: drop-shadow(0 0 10px var(--cyan)) brightness(1.35);
+}
+.airnav-link:active img {
+  transform: translateY(1px);
+  filter: drop-shadow(0 0 4px var(--cyan)) brightness(0.75);
+}
+
 footer .stat strong { color: var(--cyan); font-weight: 400; }
 footer kbd {
   border: 1px solid var(--cyan-dim);
