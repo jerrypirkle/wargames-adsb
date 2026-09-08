@@ -303,8 +303,8 @@ aside {
   line-height: 0;
 }
 .airnav-link img {
-  width: 64px;
-  height: 32px;
+  width: 56px;
+  height: auto;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   filter: drop-shadow(0 0 6px var(--cyan));

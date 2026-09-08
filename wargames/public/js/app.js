@@ -248,7 +248,7 @@ function renderDetail(ac, rx) {
   const radar = airnavUrl(ac.flight);
   const plane = radar
     ? `<a class="airnav-link" href="${esc(radar)}" target="_blank" rel="noopener noreferrer" title="Open ${esc(call)} on AirNav Radar">
-         <img src="img/plane.png" alt="AirNav Radar" width="64" height="32">
+         <img src="img/plane.png" alt="AirNav Radar" width="56" height="73">
        </a>`
     : "";
   detailEl.innerHTML = `<h2>${esc(call)}</h2>
