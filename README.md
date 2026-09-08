@@ -1,5 +1,8 @@
 # Wargames ADS-B
 
+![Uploading Screenshot 2026-09-07 at 8.50.21 PM.png…]()
+
+
 Listen to aircraft, and draw them the way NORAD looked in *WarGames*.
 
 This is a local ADS-B console: an RTL-SDR on **1090 MHz** feeds `dump1090-fa`, and a browser UI plots the tracks on a cyan vector map (range rings, phosphor trails, a CRT track file). No cloud, no FlightAware account, no map tiles. The decoder talks to the dongle directly — CubicSDR / GQRX and friends have to **release the USB device** first.
