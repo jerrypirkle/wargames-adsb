@@ -1,0 +1,163 @@
+{
+  "cities": [
+    {"name": "DALLAS", "lat": 32.7767, "lon": -96.7970, "rank": 1},
+    {"name": "FORT WORTH", "lat": 32.7555, "lon": -97.3308, "rank": 1},
+    {"name": "ARLINGTON", "lat": 32.7357, "lon": -97.1081, "rank": 2},
+    {"name": "PLANO", "lat": 33.0198, "lon": -96.6989, "rank": 2},
+    {"name": "IRVING", "lat": 32.8140, "lon": -96.9489, "rank": 2},
+    {"name": "DENTON", "lat": 33.2148, "lon": -97.1331, "rank": 2},
+    {"name": "MCKINNEY", "lat": 33.1972, "lon": -96.6398, "rank": 2},
+    {"name": "GRAPEVINE", "lat": 32.9343, "lon": -97.0781, "rank": 2},
+    {"name": "GRAND PRAIRIE", "lat": 32.7459, "lon": -96.9978, "rank": 3},
+    {"name": "GARLAND", "lat": 32.9126, "lon": -96.6389, "rank": 3},
+    {"name": "MESQUITE", "lat": 32.7668, "lon": -96.5992, "rank": 3},
+    {"name": "CARROLLTON", "lat": 32.9756, "lon": -96.8899, "rank": 3},
+    {"name": "FRISCO", "lat": 33.1507, "lon": -96.8236, "rank": 3},
+    {"name": "RICHARDSON", "lat": 32.9483, "lon": -96.7299, "rank": 3},
+    {"name": "LEWISVILLE", "lat": 33.0462, "lon": -97.0060, "rank": 3},
+    {"name": "ADDISON", "lat": 32.9618, "lon": -96.8292, "rank": 3},
+    {"name": "SOUTHLAKE", "lat": 32.9412, "lon": -97.1342, "rank": 3},
+    {"name": "EULESS", "lat": 32.8371, "lon": -97.0820, "rank": 3},
+    {"name": "BEDFORD", "lat": 32.8440, "lon": -97.1431, "rank": 3},
+    {"name": "HURST", "lat": 32.8235, "lon": -97.1706, "rank": 3},
+    {"name": "MANSFIELD", "lat": 32.5632, "lon": -97.1417, "rank": 3},
+    {"name": "CEDAR HILL", "lat": 32.5885, "lon": -96.9561, "rank": 3},
+    {"name": "WAXAHACHIE", "lat": 32.3865, "lon": -96.8483, "rank": 2},
+    {"name": "CLEBURNE", "lat": 32.3476, "lon": -97.3867, "rank": 2},
+    {"name": "WEATHERFORD", "lat": 32.7593, "lon": -97.7972, "rank": 2},
+    {"name": "DECATUR", "lat": 33.2343, "lon": -97.5861, "rank": 2},
+    {"name": "SHERMAN", "lat": 33.6357, "lon": -96.6089, "rank": 2},
+    {"name": "GREENVILLE", "lat": 33.1384, "lon": -96.1108, "rank": 2},
+    {"name": "TERRELL", "lat": 32.7359, "lon": -96.2753, "rank": 3},
+    {"name": "ENNIS", "lat": 32.3293, "lon": -96.6253, "rank": 3},
+    {"name": "CORSICANA", "lat": 32.0954, "lon": -96.4689, "rank": 2},
+    {"name": "STEPHENVILLE", "lat": 32.2207, "lon": -98.2023, "rank": 2},
+    {"name": "MINERAL WELLS", "lat": 32.8085, "lon": -98.1128, "rank": 3},
+    {"name": "GAINESVILLE", "lat": 33.6259, "lon": -97.1333, "rank": 2},
+    {"name": "WACO", "lat": 31.5493, "lon": -97.1467, "rank": 1},
+    {"name": "TYLER", "lat": 32.3513, "lon": -95.3011, "rank": 1},
+    {"name": "WICHITA FALLS", "lat": 33.9137, "lon": -98.4934, "rank": 1},
+    {"name": "ABILENE", "lat": 32.4487, "lon": -99.7331, "rank": 1},
+    {"name": "AUSTIN", "lat": 30.2672, "lon": -97.7431, "rank": 0},
+    {"name": "HOUSTON", "lat": 29.7604, "lon": -95.3698, "rank": 0},
+    {"name": "SAN ANTONIO", "lat": 29.4241, "lon": -98.4936, "rank": 0},
+    {"name": "OKLAHOMA CITY", "lat": 35.4676, "lon": -97.5164, "rank": 0},
+    {"name": "TULSA", "lat": 36.1540, "lon": -95.9928, "rank": 0},
+    {"name": "SHREVEPORT", "lat": 32.5252, "lon": -93.7502, "rank": 0},
+    {"name": "LITTLE ROCK", "lat": 34.7465, "lon": -92.2896, "rank": 0},
+    {"name": "AMARILLO", "lat": 35.2220, "lon": -101.8313, "rank": 0},
+    {"name": "LUBBOCK", "lat": 33.5779, "lon": -101.8552, "rank": 0},
+    {"name": "EL PASO", "lat": 31.7619, "lon": -106.4850, "rank": 0},
+    {"name": "CORPUS CHRISTI", "lat": 27.8006, "lon": -97.3964, "rank": 0},
+    {"name": "DENVER", "lat": 39.7392, "lon": -104.9903, "rank": 0},
+    {"name": "ALBUQUERQUE", "lat": 35.0844, "lon": -106.6504, "rank": 0},
+    {"name": "LAS VEGAS", "lat": 36.1699, "lon": -115.1398, "rank": 0},
+    {"name": "SEATTLE", "lat": 47.6062, "lon": -122.3321, "rank": 0},
+    {"name": "LOS ANGELES", "lat": 34.0522, "lon": -118.2437, "rank": 0},
+    {"name": "CHICAGO", "lat": 41.8781, "lon": -87.6298, "rank": 0},
+    {"name": "ATLANTA", "lat": 33.7490, "lon": -84.3880, "rank": 0},
+    {"name": "NEW ORLEANS", "lat": 29.9511, "lon": -90.0715, "rank": 0},
+    {"name": "KANSAS CITY", "lat": 39.0997, "lon": -94.5786, "rank": 0},
+    {"name": "MEMPHIS", "lat": 35.1495, "lon": -90.0490, "rank": 0},
+    {"name": "PHOENIX", "lat": 33.4484, "lon": -112.0740, "rank": 0},
+    {"name": "NEW YORK", "lat": 40.7128, "lon": -74.0060, "rank": 0},
+    {"name": "MIAMI", "lat": 25.7617, "lon": -80.1918, "rank": 0}
+  ],
+  "airports": [
+    {"id": "DFW", "name": "DALLAS FORT WORTH INTL", "lat": 32.8998, "lon": -97.0403, "rank": 1, "runways": [
+      {"lat": 32.905, "lon": -97.025, "hdg": 175, "len_ft": 13401},
+      {"lat": 32.900, "lon": -97.018, "hdg": 175, "len_ft": 13401},
+      {"lat": 32.905, "lon": -97.033, "hdg": 175, "len_ft": 8500},
+      {"lat": 32.897, "lon": -97.054, "hdg": 178, "len_ft": 13400},
+      {"lat": 32.892, "lon": -97.063, "hdg": 178, "len_ft": 13400},
+      {"lat": 32.887, "lon": -97.037, "hdg": 139, "len_ft": 9300},
+      {"lat": 32.896, "lon": -97.030, "hdg": 139, "len_ft": 9000}
+    ]},
+    {"id": "DAL", "name": "DALLAS LOVE FIELD", "lat": 32.8471, "lon": -96.8518, "rank": 1, "runways": [
+      {"lat": 32.847, "lon": -96.852, "hdg": 134, "len_ft": 8800},
+      {"lat": 32.851, "lon": -96.847, "hdg": 181, "len_ft": 6149}
+    ]},
+    {"id": "AFW", "name": "FORT WORTH ALLIANCE", "lat": 32.9876, "lon": -97.3188, "rank": 1, "runways": [
+      {"lat": 32.990, "lon": -97.319, "hdg": 164, "len_ft": 11000},
+      {"lat": 32.985, "lon": -97.325, "hdg": 164, "len_ft": 8200}
+    ]},
+    {"id": "NFW", "name": "NAS JRB FORT WORTH", "lat": 32.7692, "lon": -97.4415, "rank": 1, "military": true, "runways": [
+      {"lat": 32.769, "lon": -97.441, "hdg": 178, "len_ft": 12000},
+      {"lat": 32.773, "lon": -97.435, "hdg": 174, "len_ft": 12000}
+    ]},
+    {"id": "FTW", "name": "MEACHAM", "lat": 32.8198, "lon": -97.3624, "rank": 2, "runways": [
+      {"lat": 32.820, "lon": -97.362, "hdg": 163, "len_ft": 7502}
+    ]},
+    {"id": "ADS", "name": "ADDISON", "lat": 32.9686, "lon": -96.8364, "rank": 2, "runways": [
+      {"lat": 32.969, "lon": -96.836, "hdg": 153, "len_ft": 7203}
+    ]},
+    {"id": "GKY", "name": "ARLINGTON MUNI", "lat": 32.6639, "lon": -97.0944, "rank": 2, "runways": [
+      {"lat": 32.664, "lon": -97.094, "hdg": 174, "len_ft": 6080}
+    ]},
+    {"id": "DTO", "name": "DENTON ENTERPRISE", "lat": 33.2017, "lon": -97.1986, "rank": 2, "runways": [
+      {"lat": 33.202, "lon": -97.199, "hdg": 180, "len_ft": 7002}
+    ]},
+    {"id": "HQZ", "name": "MESQUITE METRO", "lat": 32.7473, "lon": -96.5304, "rank": 3, "runways": [
+      {"lat": 32.747, "lon": -96.530, "hdg": 180, "len_ft": 5999}
+    ]},
+    {"id": "RBD", "name": "DALLAS EXECUTIVE", "lat": 32.6809, "lon": -96.8682, "rank": 2, "runways": [
+      {"lat": 32.681, "lon": -96.868, "hdg": 174, "len_ft": 6451}
+    ]},
+    {"id": "LNC", "name": "LANCASTER", "lat": 32.5803, "lon": -96.7193, "rank": 3},
+    {"id": "FWS", "name": "SPINKS", "lat": 32.5654, "lon": -97.3084, "rank": 3},
+    {"id": "T67", "name": "HICKS AIRFIELD", "lat": 32.9131, "lon": -97.4117, "rank": 3},
+    {"id": "ACT", "name": "WACO RGNL", "lat": 31.6113, "lon": -97.2305, "rank": 2},
+    {"id": "SPS", "name": "WICHITA FALLS / SHEPPARD", "lat": 33.9888, "lon": -98.4919, "rank": 2}
+  ],
+  "military": [
+    {"name": "NAS JRB FORT WORTH", "lat": 32.7692, "lon": -97.4415, "rank": 1},
+    {"name": "SHEPPARD AFB", "lat": 33.9888, "lon": -98.4919, "rank": 1},
+    {"name": "DYESS AFB", "lat": 32.4208, "lon": -99.8546, "rank": 1},
+    {"name": "GOODFELLOW AFB", "lat": 31.4290, "lon": -100.3990, "rank": 2},
+    {"name": "LAUGHLIN AFB", "lat": 29.3593, "lon": -100.7780, "rank": 2},
+    {"name": "NORAD", "lat": 38.7441, "lon": -104.8467, "rank": 0, "star": true},
+    {"name": "OFFUTT AFB", "lat": 41.1183, "lon": -95.9125, "rank": 0},
+    {"name": "ELMENDORF AFB", "lat": 61.2510, "lon": -149.8064, "rank": 0},
+    {"name": "GRAND FORKS AFB", "lat": 47.9611, "lon": -97.4012, "rank": 0},
+    {"name": "LORING AFB", "lat": 46.9504, "lon": -67.8858, "rank": 0}
+  ],
+  "artcc": [
+    {"id": "ZFW", "name": "FORT WORTH", "lat": 32.83, "lon": -97.05},
+    {"id": "ZHU", "name": "HOUSTON", "lat": 29.96, "lon": -95.35},
+    {"id": "ZAB", "name": "ALBUQUERQUE", "lat": 35.05, "lon": -106.60},
+    {"id": "ZDV", "name": "DENVER", "lat": 39.85, "lon": -104.70},
+    {"id": "ZKC", "name": "KANSAS CITY", "lat": 39.12, "lon": -94.59},
+    {"id": "ZME", "name": "MEMPHIS", "lat": 35.05, "lon": -90.00},
+    {"id": "ZAU", "name": "CHICAGO", "lat": 41.98, "lon": -87.90},
+    {"id": "ZTL", "name": "ATLANTA", "lat": 33.64, "lon": -84.43},
+    {"id": "ZLA", "name": "LOS ANGELES", "lat": 34.05, "lon": -117.60},
+    {"id": "ZOA", "name": "OAKLAND", "lat": 37.70, "lon": -122.00},
+    {"id": "ZSE", "name": "SEATTLE", "lat": 47.45, "lon": -122.30},
+    {"id": "ZLC", "name": "SALT LAKE", "lat": 40.79, "lon": -111.98},
+    {"id": "ZMP", "name": "MINNEAPOLIS", "lat": 44.88, "lon": -93.22},
+    {"id": "ZID", "name": "INDIANAPOLIS", "lat": 39.72, "lon": -86.28},
+    {"id": "ZOB", "name": "CLEVELAND", "lat": 41.41, "lon": -81.85},
+    {"id": "ZDC", "name": "WASHINGTON", "lat": 38.95, "lon": -77.45},
+    {"id": "ZNY", "name": "NEW YORK", "lat": 40.64, "lon": -73.78},
+    {"id": "ZBW", "name": "BOSTON", "lat": 42.37, "lon": -71.01},
+    {"id": "ZMA", "name": "MIAMI", "lat": 25.80, "lon": -80.28},
+    {"id": "ZJX", "name": "JACKSONVILLE", "lat": 30.49, "lon": -81.69}
+  ],
+  "highways": [
+    {"id": "I-35E", "pts": [[33.22, -97.13], [33.05, -97.01], [32.90, -96.92], [32.78, -96.80], [32.55, -96.82], [32.39, -96.85], [32.01, -97.13]]},
+    {"id": "I-35W", "pts": [[33.22, -97.13], [32.99, -97.25], [32.76, -97.33], [32.54, -97.32], [32.01, -97.13]]},
+    {"id": "I-20", "pts": [[32.76, -97.80], [32.73, -97.45], [32.68, -97.33], [32.68, -97.12], [32.73, -96.85], [32.73, -96.60], [32.74, -96.28], [32.70, -95.40]]},
+    {"id": "I-30", "pts": [[32.75, -97.40], [32.75, -97.15], [32.76, -96.95], [32.78, -96.80], [32.85, -96.55], [33.02, -96.30], [33.14, -96.11]]},
+    {"id": "I-45", "pts": [[32.80, -96.78], [32.55, -96.70], [32.33, -96.63], [32.10, -96.47], [31.55, -96.10]]},
+    {"id": "I-635", "pts": [[32.92, -97.08], [32.98, -96.98], [32.99, -96.84], [32.92, -96.75], [32.84, -96.75], [32.78, -96.75]]},
+    {"id": "I-820", "pts": [[32.84, -97.48], [32.84, -97.25], [32.68, -97.25], [32.68, -97.48], [32.84, -97.48]]},
+    {"id": "I-35", "pts": [[35.47, -97.51], [34.60, -97.20], [33.90, -97.15], [33.22, -97.13]]},
+    {"id": "I-45S", "pts": [[31.55, -96.10], [30.80, -95.55], [29.76, -95.37]]}
+  ],
+  "lakes": [
+    {"name": "LEWISVILLE", "ring": [[33.04, -97.06], [33.12, -97.05], [33.14, -96.96], [33.08, -96.92], [33.02, -96.96], [33.04, -97.06]]},
+    {"name": "GRAPEVINE", "ring": [[32.95, -97.13], [32.99, -97.10], [32.99, -97.03], [32.95, -97.03], [32.93, -97.08], [32.95, -97.13]]},
+    {"name": "RAY HUBBARD", "ring": [[32.80, -96.58], [32.88, -96.55], [32.88, -96.47], [32.80, -96.47], [32.78, -96.52], [32.80, -96.58]]},
+    {"name": "JOE POOL", "ring": [[32.60, -97.05], [32.65, -97.02], [32.65, -96.95], [32.60, -96.95], [32.58, -97.00], [32.60, -97.05]]}
+  ]
+}

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WOPR // DFW SECTOR</title>
+  <link rel="stylesheet" href="css/console.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect fill='black' width='64' height='64'/><polygon fill='%235ce8ff' points='32,4 36,28 60,32 36,36 32,60 28,36 4,32 28,28'/></svg>">
+</head>
+<body>
+  <div id="boot"></div>
+
+  <div id="console" class="hidden">
+    <header>
+      <span class="brand">WOPR</span>
+      <span class="sep">//</span>
+      <span>AIRBORNE SURVEILLANCE</span>
+      <span class="sep">//</span>
+      <span id="sector-name">DFW SECTOR</span>
+      <span id="link-state" class="sim">SIMULATION</span>
+      <div class="btns">
+        <button data-view="metro">METRO</button>
+        <button data-view="sector">SECTOR</button>
+        <button data-view="texas">TEXAS</button>
+        <button data-view="conus">CONUS</button>
+      </div>
+      <span class="clock" id="clock">00:00:00</span>
+    </header>
+
+    <main>
+      <section id="scope">
+        <canvas id="map"></canvas>
+        <div class="hud" id="hud-tl"></div>
+        <div class="hud" id="hud-legend">
+          <span><i class="swatch" style="background:#ff8a2b"></i>LOW</span>
+          <span><i class="swatch" style="background:#ffd24a"></i>MID</span>
+          <span><i class="swatch" style="background:#5ce8ff"></i>HIGH</span>
+          <span><i class="swatch" style="background:#ff4fa8"></i>SEL</span>
+        </div>
+        <div class="hud" id="hud-br"></div>
+        <div id="cursor-readout"></div>
+        <div id="help">
+          <h3>COMMANDS</h3>
+          DRAG pan &nbsp; WHEEL zoom<br>
+          CLICK select track<br>
+          <kbd>F</kbd> follow &nbsp; <kbd>R</kbd> origin<br>
+          <kbd>1</kbd> metro <kbd>2</kbd> sector <kbd>3</kbd> texas <kbd>4</kbd> conus<br>
+          <kbd>G</kbd> grid &nbsp; <kbd>L</kbd> spikes &nbsp; <kbd>S</kbd> sweep<br>
+          <kbd>?</kbd> this panel &nbsp; <kbd>ESC</kbd> deselect
+        </div>
+        <div class="scanlines"></div>
+        <div class="refresh"></div>
+        <div class="vignette"></div>
+      </section>
+
+      <aside>
+        <div id="tracks"></div>
+        <div id="detail"></div>
+      </aside>
+    </main>
+
+    <footer>
+      <span class="stat">ADS-B <strong>1090.000 MHz</strong></span>
+      <span class="stat">CONTACTS <strong id="f-n">0</strong></span>
+      <span class="stat">POS <strong id="f-pos">0</strong></span>
+      <span class="stat">MSG/S <strong id="f-rate">0</strong></span>
+      <span class="stat">MSGS <strong id="f-msgs">0</strong></span>
+      <span class="stat" id="f-rx">RX --</span>
+      <span class="stat">SRC <strong id="f-src">—</strong></span>
+      <span><kbd>?</kbd> HELP</span>
+    </footer>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

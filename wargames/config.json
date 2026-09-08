@@ -1,0 +1,10 @@
+{
+  "lat": 32.9,
+  "lon": -97.0,
+  "port": 8090,
+  "title": "DFW SECTOR",
+  "callsign": "NORTEX",
+  "sbs_host": "127.0.0.1",
+  "sbs_port": 30003,
+  "json_dir": "run"
+}
