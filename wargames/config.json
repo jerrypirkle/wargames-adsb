@@ -6,5 +6,6 @@
   "callsign": "NORTEX",
   "sbs_host": "127.0.0.1",
   "sbs_port": 30003,
-  "json_dir": "run"
+  "json_dir": "run",
+  "track_ttl_sec": 1200
 }

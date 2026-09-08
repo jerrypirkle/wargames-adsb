@@ -81,12 +81,17 @@ def _alt(v: Any) -> int | None:
         return None
 
 
+# Drop a track this long after the last Mode S / ADS-B message.
+TRACK_TTL_SEC = 20 * 60
+
+
 class Store:
-    def __init__(self, lat: float, lon: float, title: str, callsign: str):
+    def __init__(self, lat: float, lon: float, title: str, callsign: str, track_ttl: float = TRACK_TTL_SEC):
         self.lock = threading.Lock()
         self.rx = {"lat": lat, "lon": lon}
         self.title = title
         self.callsign = callsign
+        self.track_ttl = float(track_ttl)
         self.aircraft: dict[str, dict[str, Any]] = {}
         self.messages = 0
         self.msg_rate = 0.0
@@ -103,7 +108,7 @@ class Store:
     def snapshot(self) -> dict[str, Any]:
         now = time.time()
         with self.lock:
-            stale_after = 60.0 if self.mode == "live" else 120.0
+            stale_after = self.track_ttl if self.mode == "live" else min(self.track_ttl, 120.0)
             live = []
             drop = []
             for hexid, ac in self.aircraft.items():
@@ -161,23 +166,20 @@ class Store:
             self.last_data = now
             if messages is not None:
                 self.mark_messages(total=messages)
-            seen_hex = set()
             for raw in rows:
                 ac = normalize_json(raw, now)
                 if not ac:
                     continue
                 hexid = ac["hex"]
-                seen_hex.add(hexid)
                 prev = self.aircraft.get(hexid, {})
                 merged = {**prev, **{k: v for k, v in ac.items() if v is not None}}
+                heard = _float(raw.get("seen"))
+                merged["_ts"] = now - heard if heard is not None else now
                 if ac.get("lat") is not None:
-                    merged["_pos_ts"] = now
-                merged["_ts"] = now
+                    heard_pos = _float(raw.get("seen_pos"))
+                    merged["_pos_ts"] = now - heard_pos if heard_pos is not None else now
                 self.aircraft[hexid] = merged
-            # drop anything dump1090 no longer lists
-            for hexid in list(self.aircraft):
-                if hexid not in seen_hex:
-                    self.aircraft.pop(hexid, None)
+            # Keep unlistened tracks until TRACK_TTL_SEC; snapshot() expires them.
 
     def ingest_sbs(self, fields: list[str]) -> None:
         if len(fields) < 10 or fields[0] != "MSG":
@@ -500,6 +502,8 @@ def main() -> None:
     parser.add_argument("--json-dir", default=str(cfg["json_dir"]))
     parser.add_argument("--demo", action="store_true", help="Force simulated DFW traffic")
     parser.add_argument("--title", default=str(cfg["title"]))
+    parser.add_argument("--track-ttl", type=float, default=float(cfg.get("track_ttl_sec") or TRACK_TTL_SEC),
+                        help="Seconds after last message before a track is dropped (default 1200 = 20 min)")
     args = parser.parse_args()
 
     json_dir = Path(args.json_dir)
@@ -507,7 +511,7 @@ def main() -> None:
         json_dir = ROOT / json_dir
     json_dir.mkdir(parents=True, exist_ok=True)
 
-    store = Store(args.lat, args.lon, args.title, str(cfg.get("callsign") or "NORTEX"))
+    store = Store(args.lat, args.lon, args.title, str(cfg.get("callsign") or "NORTEX"), track_ttl=args.track_ttl)
     store.force_demo = bool(args.demo)
     Handler.store = store
 

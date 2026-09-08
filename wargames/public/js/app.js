@@ -81,10 +81,13 @@ async function boot() {
   bootEl.remove();
 }
 
+const TRACK_TTL_SEC = 20 * 60;
+
 function interpolate(list, nowMs) {
   const extra = state.snapAt ? (nowMs - state.snapAt) / 1000 : 0;
   const next = new Map();
   for (const ac of list) {
+    if ((ac.seen ?? 0) + extra > TRACK_TTL_SEC) continue;
     const prev = state.interp.get(ac.hex);
     const row = { ...ac };
     if (ac.lat != null && ac.gs && ac.track != null) {
