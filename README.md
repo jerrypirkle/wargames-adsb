@@ -91,5 +91,6 @@ wargames/run/            dump1090 JSON (created at runtime, not committed)
 ## Notes
 
 - Frequency is **1090.000 MHz** ADS-B / Mode S. This UI does not decode UAT (978 MHz).
+- **UAS** contacts are ADS-B emitter category **B6** (UAV), plus callsigns containing UAS/UAV/DRONE. They draw as a green quadcopter mark. FAA Remote ID over Bluetooth/WiFi is a different radio and is not received by dump1090.
 - Gain, PPM correction, and adaptive-gain flags are dump1090’s problem — pass them when you start dump1090 yourself, or edit `start.sh`.
 - Fonts in `wargames/public/fonts/` are [Share Tech Mono](https://fonts.google.com/specimen/Share+Tech+Mono) and [Orbitron](https://fonts.google.com/specimen/Orbitron) (SIL Open Font License).

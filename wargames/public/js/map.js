@@ -34,6 +34,31 @@ export function altColor(alt, selected) {
   return "#e8fbff";
 }
 
+/** ADS-B emitter category B6 is UAV. Callsign heuristics catch some that omit category. */
+export function isUas(ac) {
+  if (!ac) return false;
+  if (ac.uas) return true;
+  const cat = String(ac.category || "").toUpperCase();
+  if (cat === "B6") return true;
+  const f = String(ac.flight || "").toUpperCase();
+  return /(?:^|[^A-Z])(UAS|UAV|DRONE)/.test(f);
+}
+
+export const CAT_LABEL = {
+  A0: "NO INFO", A1: "LIGHT", A2: "SMALL", A3: "LARGE", A4: "HIGH VORTEX",
+  A5: "HEAVY", A6: "HIGH PERF", A7: "ROTORCRAFT",
+  B0: "NO INFO", B1: "GLIDER", B2: "LTA", B3: "PARACHUTE", B4: "ULTRALIGHT",
+  B6: "UAS", B7: "SPACE",
+  C1: "EMERG VEH", C2: "SERVICE VEH", C3: "POINT OBS",
+};
+
+export function categoryLabel(cat) {
+  if (!cat) return "—";
+  const code = String(cat).toUpperCase();
+  const name = CAT_LABEL[code];
+  return name ? `${name}  ${code}` : code;
+}
+
 function glowStroke(ctx, color, width, blur = 10) {
   ctx.strokeStyle = color;
   ctx.lineWidth = width;
@@ -526,22 +551,29 @@ export class VectorMap {
       const sel = ac.hex === this.selected;
       const hov = ac.hex === this.hover;
       const stale = (ac.seen_pos ?? ac.seen ?? 0) > 20;
-      const col = ac.emergency && ac.emergency !== "none" ? "#ff3355" : altColor(ac.alt, sel);
+      const uas = isUas(ac);
+      const col = ac.emergency && ac.emergency !== "none"
+        ? "#ff3355"
+        : (sel ? "#ff4fa8" : uas ? "#3cff9a" : altColor(ac.alt, false));
       const size = sel ? 9 : 6.5;
       ctx.save();
       ctx.globalAlpha = stale ? 0.4 : 1;
       ctx.translate(x, y);
       ctx.rotate(((ac.track || 0) * DEG));
-      ctx.beginPath();
-      ctx.moveTo(0, -size);
-      ctx.lineTo(size * 0.72, size);
-      ctx.lineTo(0, size * 0.42);
-      ctx.lineTo(-size * 0.72, size);
-      ctx.closePath();
-      ctx.fillStyle = col;
-      ctx.shadowColor = col;
-      ctx.shadowBlur = sel ? 16 : 8;
-      ctx.fill();
+      if (uas) {
+        drawUasSymbol(ctx, size, col);
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(0, -size);
+        ctx.lineTo(size * 0.72, size);
+        ctx.lineTo(0, size * 0.42);
+        ctx.lineTo(-size * 0.72, size);
+        ctx.closePath();
+        ctx.fillStyle = col;
+        ctx.shadowColor = col;
+        ctx.shadowBlur = sel ? 16 : 8;
+        ctx.fill();
+      }
       ctx.restore();
 
       if (sel) {
@@ -577,6 +609,35 @@ export class VectorMap {
       }
     }
   }
+}
+
+function drawUasSymbol(ctx, size, color) {
+  const arm = size * 1.2;
+  const r = Math.max(1.4, size * 0.28);
+  ctx.fillStyle = color;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = Math.max(1.1, size * 0.18);
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 10;
+  ctx.beginPath();
+  ctx.moveTo(-arm, -arm);
+  ctx.lineTo(arm, arm);
+  ctx.moveTo(arm, -arm);
+  ctx.lineTo(-arm, arm);
+  ctx.stroke();
+  for (const [px, py] of [[-arm, -arm], [arm, -arm], [arm, arm], [-arm, arm]]) {
+    ctx.beginPath();
+    ctx.arc(px, py, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.beginPath();
+  ctx.moveTo(0, -size * 0.42);
+  ctx.lineTo(size * 0.42, 0);
+  ctx.lineTo(0, size * 0.42);
+  ctx.lineTo(-size * 0.42, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.shadowBlur = 0;
 }
 
 function firstLon(g) {

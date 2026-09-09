@@ -305,7 +305,16 @@ def normalize_json(raw: dict[str, Any], now: float) -> dict[str, Any] | None:
         "emergency": emergency,
         "category": raw.get("category"),
         "type": raw.get("type"),
+        "uas": _is_uas(raw.get("category"), flight),
     }
+
+
+def _is_uas(category: Any, flight: str | None) -> bool:
+    cat = str(category or "").strip().upper()
+    if cat == "B6":
+        return True
+    f = (flight or "").upper()
+    return "UAS" in f or "UAV" in f or "DRONE" in f
 
 
 # ---------------------------------------------------------------------------
@@ -388,6 +397,8 @@ def _seed_fleet() -> list[dict[str, Any]]:
         {"hex": "ab0007", "flight": "FDX137", "lat": 33.00, "lon": -97.70, "alt": 32000, "gs": 460, "track": 110, "vr": -300, "squawk": "1200", "rssi": -25.0},
         {"hex": "a01077", "flight": "GTI8521", "lat": 32.35, "lon": -97.10, "alt": 28000, "gs": 430, "track": 355, "vr": 0, "squawk": "0461", "rssi": -27.8},
         {"hex": "a5e001", "flight": "N907QS", "lat": 32.93, "lon": -96.92, "alt": 4500, "gs": 190, "track": 140, "vr": 200, "squawk": "1200", "rssi": -11.2},
+        {"hex": "a6b601", "flight": "UAS042", "lat": 32.91, "lon": -97.03, "alt": 380, "gs": 32, "track": 75, "vr": 40, "squawk": "1200", "rssi": -18.5, "category": "B6", "uas": True},
+        {"hex": "a6b602", "flight": "UAS107", "lat": 32.86, "lon": -96.96, "alt": 520, "gs": 28, "track": 250, "vr": -20, "squawk": "1200", "rssi": -21.0, "category": "B6", "uas": True},
     ]
 
 

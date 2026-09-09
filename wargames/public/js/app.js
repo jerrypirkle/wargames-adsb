@@ -7,6 +7,8 @@ import {
   fmtLatLong,
   haversineNm,
   bearingDeg,
+  isUas,
+  categoryLabel,
 } from "./map.js";
 
 const bootEl = document.getElementById("boot");
@@ -166,6 +168,8 @@ function renderChrome(snap, list) {
   const withPos = list.filter((a) => a.lat != null);
   document.getElementById("f-n").textContent = String(list.length);
   document.getElementById("f-pos").textContent = String(withPos.length);
+  const uasEl = document.getElementById("f-uas");
+  if (uasEl) uasEl.textContent = String(list.filter(isUas).length);
   document.getElementById("f-rate").textContent = (snap.rate || 0).toFixed(1);
   document.getElementById("f-msgs").textContent = fmtNum(snap.messages || 0);
   document.getElementById("f-src").textContent = (snap.source || "—").toUpperCase();
@@ -216,15 +220,17 @@ function renderTable(list, rx) {
   for (const ac of rows) {
     const call = (ac.flight || ac.hex.slice(-6).toUpperCase()).trim();
     const rng = rngOf(ac, rx);
+    const uas = isUas(ac);
     const cls = [
       ac.hex === state.selected ? "sel" : "",
       (ac.seen_pos ?? ac.seen ?? 0) > 20 ? "stale" : "",
       ac.emergency && ac.emergency !== "none" ? "emerg" : "",
+      uas ? "uas" : "",
     ].filter(Boolean).join(" ");
     const altMax = ac.alt != null && ac.alt === maxAlt;
     const gsMax = ac.gs != null && ac.gs === maxGs;
     html += `<tr data-hex="${ac.hex}" class="${cls}">
-      <td>${esc(call)}</td>
+      <td>${uas ? '<span class="tag-uas">UAS</span> ' : ""}${esc(call)}</td>
       <td class="num${altMax ? " max" : ""}">${formatAlt(ac.alt)}</td>
       <td class="num${gsMax ? " max" : ""}">${ac.gs != null ? Math.round(ac.gs) : "—"}</td>
       <td class="num">${ac.track != null ? String(Math.round(ac.track)).padStart(3, "0") : "—"}</td>
@@ -266,7 +272,8 @@ function renderDetail(ac, rx) {
       <span class="k">RSSI</span><span class="v">${ac.rssi != null ? ac.rssi.toFixed(1) + " dBFS" : "—"}</span>
       <span class="k">SEEN</span><span class="v">${(ac.seen ?? 0).toFixed(1)}s</span>
       <span class="k">MSGS</span><span class="v">${ac.msgs ?? "—"}</span>
-      <span class="k">CAT</span><span class="v">${ac.category || ac.type || "—"}</span>
+      <span class="k">KIND</span><span class="v${isUas(ac) ? " uas" : ""}">${isUas(ac) ? "UAS" : "AIRCRAFT"}</span>
+      <span class="k">CAT</span><span class="v">${categoryLabel(ac.category)}${ac.type ? `  ${ac.type}` : ""}</span>
     </div>
     ${plane}`;
 }

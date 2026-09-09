@@ -259,6 +259,14 @@ aside {
 #tracks tr.stale td { color: var(--muted); }
 #tracks tr.emerg td { color: var(--red); animation: blink 0.7s step-end infinite; }
 #tracks .num { text-align: right; font-variant-numeric: tabular-nums; }
+#tracks .tag-uas {
+  color: var(--green);
+  letter-spacing: 0.14em;
+  margin-right: 0.35em;
+  text-shadow: 0 0 6px var(--green);
+}
+#tracks tr.uas:not(.sel):not(.emerg) td:first-child { color: var(--green); }
+#detail .v.uas { color: var(--green); text-shadow: 0 0 6px var(--green); }
 #tracks td.max,
 #tracks tr:hover td.max,
 #tracks tr.sel td.max,
