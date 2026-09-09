@@ -23,6 +23,8 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
+from space import space_loop
+
 ROOT = Path(__file__).resolve().parent
 PUBLIC = ROOT / "public"
 DEFAULT_CONFIG = ROOT / "config.json"
@@ -124,6 +126,7 @@ class Store:
         self.started = time.time()
         self.force_demo = False
         self.history_loaded = False
+        self.space: dict[str, Any] = {"source": "norad-tle", "objects": [], "updated": 0}
 
     def snapshot(self) -> dict[str, Any]:
         now = time.time()
@@ -158,6 +161,7 @@ class Store:
                 "rate": round(self.msg_rate, 1),
                 "uptime": int(now - self.started),
                 "aircraft": live,
+                "space": dict(self.space),
             }
 
     def mark_messages(self, total: int | None = None, increment: int = 0) -> None:
@@ -558,6 +562,7 @@ def main() -> None:
         threads.append(threading.Thread(target=sbs_reader, args=(store, args.sbs_host, args.sbs_port, stop), daemon=True))
     world = DemoWorld(store)
     threads.append(threading.Thread(target=demo_loop, args=(world, stop), daemon=True))
+    threads.append(threading.Thread(target=space_loop, args=(store, stop), daemon=True))
     for t in threads:
         t.start()
 

@@ -157,6 +157,18 @@ header button:hover, header button.active, .chip.active {
   color: #fff;
 }
 
+header button[data-view="space"] {
+  color: var(--magenta);
+  border-color: rgba(255, 79, 168, 0.45);
+}
+header button[data-view="space"]:hover,
+header button[data-view="space"].active {
+  color: #fff;
+  border-color: var(--magenta);
+  background: rgba(255, 79, 168, 0.14);
+  box-shadow: 0 0 10px rgba(255, 79, 168, 0.3);
+}
+
 main {
   display: grid;
   grid-template-columns: 1fr minmax(300px, 360px);

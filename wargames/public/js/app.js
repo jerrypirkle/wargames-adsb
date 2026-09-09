@@ -116,10 +116,16 @@ function applySnapshot(snap) {
   state.snapshot = snap;
   state.snapAt = performance.now();
   if (snap.rx) map.setRx(snap.rx.lat, snap.rx.lon);
-  if (snap.title) sectorName.textContent = snap.title;
+  if (map.view === "space") sectorName.textContent = "SPACE SECTOR";
+  else if (snap.title) sectorName.textContent = snap.title;
   const live = snap.mode === "live";
   linkState.textContent = live ? (snap.connected ? "LIVE LINK" : "LINK LOST") : "SIMULATION";
   linkState.className = live && snap.connected ? "live" : "sim";
+  map.spaceObjects = ((snap.space && snap.space.objects) || []).map((s) => ({
+    ...s,
+    hex: `SAT${s.id}`,
+    kind: "sat",
+  }));
 }
 
 function connect() {
@@ -147,7 +153,8 @@ function tick(now) {
     map.selected = state.selected;
     map.rememberTrails(list, now / 1000);
     if (state.follow) {
-      const ac = list.find((a) => a.hex === state.selected);
+      const ac = list.find((a) => a.hex === state.selected)
+        || map.spaceObjects.find((s) => s.hex === state.selected);
       if (ac) map.follow(ac);
     }
     if (now - state.lastChrome > 250) {
@@ -177,18 +184,32 @@ function renderChrome(snap, list) {
   document.getElementById("f-rx").innerHTML =
     `RX <strong>${fmtLat(rx.lat)}  ${fmtLon(rx.lon)}</strong>`;
 
-  hudTl.innerHTML =
-    `${snap.callsign || "NORTEX"} / ${snap.title || "DFW SECTOR"}<br>` +
-    `ORIGIN  ${fmtLatLong(rx.lat, rx.lon)}<br>` +
-    `SCALE   ${map.ppm.toFixed(2)} PX/NM<br>` +
-    (state.follow ? "FOLLOW  ON<br>" : "");
+  if (map.view === "space") {
+    const iss = map.spaceObjects.find((s) => s.id === "25544");
+    hudTl.innerHTML =
+      `NORAD  /  SPACE SECTOR<br>` +
+      `ORIGIN  ${fmtLatLong(rx.lat, rx.lon)}<br>` +
+      `EPHEM   NORAD TLE<br>` +
+      (iss ? `ISS EL  ${iss.el.toFixed(1)}°  ${iss.aos ? "AOS" : "LOS"}<br>` : "") +
+      (state.follow ? "FOLLOW  ON<br>" : "");
+    renderSpaceTable(map.spaceObjects);
+    const sel = map.spaceObjects.find((s) => s.hex === state.selected)
+      || list.find((a) => a.hex === state.selected);
+    if (sel && sel.kind === "sat") renderSatDetail(sel, rx);
+    else renderDetail(sel, rx);
+  } else {
+    hudTl.innerHTML =
+      `${snap.callsign || "NORTEX"} / ${snap.title || "DFW SECTOR"}<br>` +
+      `ORIGIN  ${fmtLatLong(rx.lat, rx.lon)}<br>` +
+      `SCALE   ${map.ppm.toFixed(2)} PX/NM<br>` +
+      (state.follow ? "FOLLOW  ON<br>" : "");
+    renderTable(list, rx);
+    renderDetail(list.find((a) => a.hex === state.selected), rx);
+  }
 
   hudBr.textContent = state.cursor
     ? `${fmtLatLong(state.cursor.lat, state.cursor.lon)}`
     : "";
-
-  renderTable(list, rx);
-  renderDetail(list.find((a) => a.hex === state.selected), rx);
 }
 
 function fmtNum(n) {
@@ -242,6 +263,47 @@ function renderTable(list, rx) {
   const top = tracksEl.scrollTop;
   tracksEl.innerHTML = html;
   tracksEl.scrollTop = top;
+}
+
+function renderSpaceTable(sats) {
+  const rows = [...sats].sort((a, b) => (b.el ?? -90) - (a.el ?? -90));
+  let html = `<table><thead><tr>
+    <th>OBJECT</th><th class="num">KM</th><th class="num">EL</th>
+    <th class="num">AZ</th><th class="num">RNG</th><th>AOS</th></tr></thead><tbody>`;
+  for (const s of rows) {
+    const cls = [
+      s.hex === state.selected ? "sel" : "",
+      s.aos ? "uas" : "",
+    ].filter(Boolean).join(" ");
+    html += `<tr data-hex="${s.hex}" class="${cls}">
+      <td>${esc(s.name)}</td>
+      <td class="num">${Math.round(s.alt_km)}</td>
+      <td class="num">${s.el.toFixed(0)}</td>
+      <td class="num">${String(Math.round(s.az)).padStart(3, "0")}</td>
+      <td class="num">${Math.round(s.range_km)}</td>
+      <td>${s.aos ? "AOS" : "LOS"}</td>
+    </tr>`;
+  }
+  html += "</tbody></table>";
+  const top = tracksEl.scrollTop;
+  tracksEl.innerHTML = html;
+  tracksEl.scrollTop = top;
+}
+
+function renderSatDetail(s, rx) {
+  detailEl.innerHTML = `<h2>${esc(s.name)}</h2>
+    <div class="kv">
+      <span class="k">NORAD</span><span class="v hi">${s.id}</span>
+      <span class="k">KIND</span><span class="v uas">SATELLITE</span>
+      <span class="k">ALT</span><span class="v">${s.alt_km.toFixed(1)} KM</span>
+      <span class="k">VEL</span><span class="v">${s.vel_kms.toFixed(2)} KM/S</span>
+      <span class="k">POS</span><span class="v">${fmtLatLong(s.lat, s.lon)}</span>
+      <span class="k">EL</span><span class="v">${s.el.toFixed(1)}°</span>
+      <span class="k">AZ</span><span class="v">${s.az.toFixed(0)}°</span>
+      <span class="k">RNG</span><span class="v">${Math.round(s.range_km)} KM</span>
+      <span class="k">PASS</span><span class="v${s.aos ? " uas" : ""}">${s.aos ? "AOS  IN VIEW OF RX" : "LOS  BELOW HORIZON"}</span>
+      <span class="k">SRC</span><span class="v">NORAD TLE</span>
+    </div>`;
 }
 
 function renderDetail(ac, rx) {
@@ -376,7 +438,8 @@ function bind() {
     const tr = e.target.closest("tr[data-hex]");
     if (tr) {
       select(tr.dataset.hex);
-      const ac = map.aircraft.find((a) => a.hex === tr.dataset.hex);
+      const ac = map.aircraft.find((a) => a.hex === tr.dataset.hex)
+        || map.spaceObjects.find((s) => s.hex === tr.dataset.hex);
       if (ac && ac.lat != null) {
         map.center = { lat: ac.lat, lon: ac.lon };
         map._geoDirty = true;
@@ -384,12 +447,18 @@ function bind() {
     }
   });
 
-  document.querySelectorAll("header button[data-view]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      state.follow = false;
-      map.preset(btn.dataset.view);
-      document.querySelectorAll("header button[data-view]").forEach((b) => b.classList.toggle("active", b === btn));
+  function setView(name) {
+    state.follow = false;
+    map.preset(name);
+    document.querySelectorAll("header button[data-view]").forEach((b) => {
+      b.classList.toggle("active", b.dataset.view === name);
     });
+    if (name === "space") sectorName.textContent = "SPACE SECTOR";
+    else if (state.snapshot && state.snapshot.title) sectorName.textContent = state.snapshot.title;
+  }
+
+  document.querySelectorAll("header button[data-view]").forEach((btn) => {
+    btn.addEventListener("click", () => setView(btn.dataset.view));
   });
 
   window.addEventListener("keydown", (e) => {
@@ -406,8 +475,7 @@ function bind() {
       if (state.selected) state.follow = !state.follow;
     }
     if (e.key === "r" || e.key === "R") {
-      state.follow = false;
-      map.preset("sector");
+      setView(map.view === "space" ? "space" : "sector");
     }
     if (e.key === "g" || e.key === "G") {
       map.showGrid = !map.showGrid;
@@ -415,10 +483,11 @@ function bind() {
     }
     if (e.key === "l" || e.key === "L") map.showSpikes = !map.showSpikes;
     if (e.key === "s" || e.key === "S") map.showSweep = !map.showSweep;
-    if (e.key === "1") map.preset("metro");
-    if (e.key === "2") map.preset("sector");
-    if (e.key === "3") map.preset("texas");
-    if (e.key === "4") map.preset("conus");
+    if (e.key === "1") setView("metro");
+    if (e.key === "2") setView("sector");
+    if (e.key === "3") setView("texas");
+    if (e.key === "4") setView("conus");
+    if (e.key === "5") setView("space");
     const step = 80;
     if (e.key === "ArrowLeft") map.panPx(step, 0);
     if (e.key === "ArrowRight") map.panPx(-step, 0);
@@ -428,11 +497,12 @@ function bind() {
 }
 
 async function main() {
-  const [geo, places] = await Promise.all([
+  const [geo, places, world] = await Promise.all([
     fetch("data/us-states.json").then((r) => r.json()),
     fetch("data/places.json").then((r) => r.json()),
+    fetch("data/world-land.json").then((r) => r.json()),
   ]);
-  map.setData(geo, places);
+  map.setData(geo, places, world);
   map.preset("sector");
   document.querySelector('header button[data-view="sector"]').classList.add("active");
   bind();

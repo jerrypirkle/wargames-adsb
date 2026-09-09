@@ -81,7 +81,10 @@ export class VectorMap {
     this.rx = { lat: 32.9, lon: -97.0 };
     this.ppm = 8; // pixels per nautical mile
     this.geo = null;
+    this.world = null;
     this.places = null;
+    this.view = "sector";
+    this.spaceObjects = [];
     this.showGrid = true;
     this.showSweep = true;
     this.showSpikes = false;
@@ -95,9 +98,10 @@ export class VectorMap {
     this._geoCtx = this._geoCanvas.getContext("2d");
   }
 
-  setData(geo, places) {
+  setData(geo, places, world) {
     this.geo = geo;
     this.places = places;
+    if (world) this.world = world;
     this._geoDirty = true;
   }
 
@@ -120,8 +124,10 @@ export class VectorMap {
       sector: { lat, lon, ppm: 6 },
       texas: { lat: 31.4, lon: -99.2, ppm: 1.15 },
       conus: { lat: 39.5, lon: -98.0, ppm: 0.38 },
+      space: { lat, lon, ppm: 0.078 },
     };
     const v = map[name] || map.sector;
+    this.view = name || "sector";
     this.setView(v.lat, v.lon, v.ppm);
   }
 
@@ -137,9 +143,16 @@ export class VectorMap {
     this._geoDirty = true;
   }
 
+  lonDelta(lon) {
+    let d = lon - this.center.lon;
+    while (d > 180) d -= 360;
+    while (d < -180) d += 360;
+    return d;
+  }
+
   project(lat, lon) {
     const nmN = (lat - this.center.lat) * 60;
-    const nmE = (lon - this.center.lon) * 60 * Math.cos(this.center.lat * DEG);
+    const nmE = this.lonDelta(lon) * 60 * Math.cos(this.center.lat * DEG);
     return [this.w / 2 + nmE * this.ppm, this.h / 2 - nmN * this.ppm];
   }
 
@@ -147,13 +160,15 @@ export class VectorMap {
     const nmE = (x - this.w / 2) / this.ppm;
     const nmN = (this.h / 2 - y) / this.ppm;
     const lat = this.center.lat + nmN / 60;
-    const lon = this.center.lon + nmE / (60 * Math.cos(this.center.lat * DEG));
+    let lon = this.center.lon + nmE / (60 * Math.cos(this.center.lat * DEG));
+    while (lon > 180) lon -= 360;
+    while (lon < -180) lon += 360;
     return { lat, lon };
   }
 
   zoomAt(x, y, factor) {
     const before = this.unproject(x, y);
-    this.ppm = Math.max(0.18, Math.min(48, this.ppm * factor));
+    this.ppm = Math.max(0.045, Math.min(48, this.ppm * factor));
     const after = this.unproject(x, y);
     this.center.lat += before.lat - after.lat;
     this.center.lon += before.lon - after.lon;
@@ -195,8 +210,11 @@ export class VectorMap {
   }
 
   hit(x, y) {
-    let best = null, bestD = 16;
-    for (const ac of this.aircraft) {
+    let best = null, bestD = 18;
+    const pool = this.view === "space"
+      ? [...this.spaceObjects, ...this.aircraft]
+      : this.aircraft;
+    for (const ac of pool) {
       if (ac.lat == null) continue;
       const [ax, ay] = this.project(ac.lat, ac.lon);
       const d = Math.hypot(ax - x, ay - y);
@@ -214,10 +232,15 @@ export class VectorMap {
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.drawImage(this._geoCanvas, 0, 0, this.w, this.h);
 
-    if (this.showSpikes) this._drawSpikes(ctx);
-    this._drawTrails(ctx, now);
-    if (this.showSweep) this._drawSweep(ctx, now);
-    this._drawAircraft(ctx);
+    if (this.view === "space") {
+      this._drawSatellites(ctx);
+      this._drawAircraft(ctx);
+    } else {
+      if (this.showSpikes) this._drawSpikes(ctx);
+      this._drawTrails(ctx, now);
+      if (this.showSweep) this._drawSweep(ctx, now);
+      this._drawAircraft(ctx);
+    }
   }
 
   _prepare(ctx) {
@@ -232,18 +255,102 @@ export class VectorMap {
     const ctx = this._geoCtx;
     this._prepare(ctx);
     if (this.showGrid) this._drawGrid(ctx);
-    this._drawStates(ctx);
-    this._drawLakes(ctx);
-    this._drawHighways(ctx);
-    this._drawRangeRings(ctx);
-    this._drawPlaces(ctx);
-    this._drawRx(ctx);
-    this._drawZoneTitle(ctx);
+    if (this.view === "space") {
+      this._drawWorld(ctx);
+      this._drawRx(ctx);
+      this._drawZoneTitle(ctx);
+    } else {
+      this._drawStates(ctx);
+      this._drawLakes(ctx);
+      this._drawHighways(ctx);
+      this._drawRangeRings(ctx);
+      this._drawPlaces(ctx);
+      this._drawRx(ctx);
+      this._drawZoneTitle(ctx);
+    }
     this._geoDirty = false;
   }
 
+  _drawWorld(ctx) {
+    if (!this.world) return;
+    for (const f of this.world.features || []) {
+      const g = f.geometry;
+      if (!g) continue;
+      const rings = g.type === "Polygon" ? [g.coordinates] : g.coordinates;
+      ctx.beginPath();
+      for (const poly of rings) {
+        for (const ring of poly) this._pathRing(ctx, ring);
+      }
+      ctx.fillStyle = "rgba(18, 70, 100, 0.16)";
+      ctx.fill();
+      ctx.strokeStyle = "rgba(92,232,255,0.42)";
+      ctx.lineWidth = 0.9;
+      ctx.shadowColor = "rgba(92,232,255,0.35)";
+      ctx.shadowBlur = 5;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  _drawSatellites(ctx) {
+    for (const sat of this.spaceObjects) {
+      if (sat.track && sat.track.length > 1) {
+        ctx.beginPath();
+        let started = false, px = 0;
+        for (const p of sat.track) {
+          const [x, y] = this.project(p[0], p[1]);
+          if (!started) {
+            ctx.moveTo(x, y);
+            started = true;
+            px = x;
+            continue;
+          }
+          if (Math.abs(x - px) > this.w * 0.5) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+          px = x;
+        }
+        ctx.strokeStyle = sat.id === "25544" ? "rgba(255,79,168,0.55)" : "rgba(92,232,255,0.28)";
+        ctx.lineWidth = sat.id === "25544" ? 1.6 : 1.0;
+        ctx.shadowColor = sat.id === "25544" ? "#ff4fa8" : "#5ce8ff";
+        ctx.shadowBlur = sat.id === "25544" ? 8 : 4;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+      if (sat.lat == null) continue;
+      const [x, y] = this.project(sat.lat, sat.lon);
+      if (sat.aos && sat.range_km) {
+        const r = (sat.range_km / 1.852) * this.ppm * 0.35;
+        ctx.beginPath();
+        ctx.arc(x, y, Math.max(8, Math.min(r, this.w)), 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(60,255,154,0.35)";
+        ctx.setLineDash([4, 6]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      const sel = this.selected === sat.hex;
+      const col = sat.aos ? "#3cff9a" : (sat.id === "25544" ? "#ff8ad4" : "#ffd24a");
+      drawStar(ctx, x, y, sel ? 11 : 8, col);
+      ctx.fillStyle = col;
+      ctx.font = "11px 'Share Tech Mono', monospace";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "bottom";
+      ctx.shadowColor = col;
+      ctx.shadowBlur = 8;
+      ctx.fillText(sat.name, x + 12, y - 2);
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "rgba(200,244,255,0.75)";
+      ctx.textBaseline = "top";
+      ctx.fillText(`${Math.round(sat.alt_km)} KM`, x + 12, y + 2);
+      if (sel) {
+        ctx.beginPath();
+        ctx.arc(x, y, 18, 0, Math.PI * 2);
+        ctx.strokeStyle = "#ff4fa8";
+        ctx.stroke();
+      }
+    }
+  }
+
   _drawZoneTitle(ctx) {
-    if (this.ppm < 1.6 || this.ppm > 22) return;
     ctx.save();
     ctx.font = "13px Orbitron, 'Share Tech Mono', sans-serif";
     ctx.fillStyle = "#5ce8ff";
@@ -251,12 +358,14 @@ export class VectorMap {
     ctx.textBaseline = "bottom";
     ctx.shadowColor = "#5ce8ff";
     ctx.shadowBlur = 12;
-    ctx.fillText("DFW AIR DEFENSE ZONE", this.w / 2, this.h - 22);
+    const title = this.view === "space" ? "SPACE SURVEILLANCE  //  DFW ORIGIN"
+      : (this.ppm < 1.6 || this.ppm > 22) ? "" : "DFW AIR DEFENSE ZONE";
+    if (title) ctx.fillText(title, this.w / 2, this.h - 22);
     ctx.restore();
   }
 
   _drawGrid(ctx) {
-    const step = this.ppm > 10 ? 0.1 : this.ppm > 4 ? 0.25 : this.ppm > 1.2 ? 1 : 5;
+    const step = this.ppm > 10 ? 0.1 : this.ppm > 4 ? 0.25 : this.ppm > 1.2 ? 1 : this.ppm > 0.2 ? 5 : 15;
     const nw = this.unproject(0, 0);
     const se = this.unproject(this.w, this.h);
     const lat0 = Math.floor(Math.min(nw.lat, se.lat) / step) * step;
@@ -297,13 +406,28 @@ export class VectorMap {
   }
 
   _pathRing(ctx, ring) {
+    let started = false;
+    let px = 0, py = 0, wrapped = false;
     for (let i = 0; i < ring.length; i++) {
       const [lon, lat] = ring[i];
       const [x, y] = this.project(lat, lon);
-      if (i === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
+      if (!started) {
+        ctx.moveTo(x, y);
+        started = true;
+        px = x;
+        py = y;
+        continue;
+      }
+      if (Math.abs(x - px) > this.w * 0.55) {
+        wrapped = true;
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+      px = x;
+      py = y;
     }
-    ctx.closePath();
+    if (!wrapped) ctx.closePath();
   }
 
   _drawStates(ctx) {
