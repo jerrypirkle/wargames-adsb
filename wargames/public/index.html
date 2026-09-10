@@ -24,7 +24,9 @@
         <button data-view="texas">TEXAS</button>
         <button data-view="conus">CONUS</button>
         <span class="sep">//</span>
-        <button data-view="space">[ SPACE SECTOR ]</button>
+        <button data-view="space">SPACE SECTOR</button>
+        <span class="sep">//</span>
+        <button data-view="mesh">MESHCORE</button>
       </div>
       <span class="clock" id="clock">00:00:00</span>
     </header>
@@ -47,7 +49,8 @@
           DRAG pan &nbsp; WHEEL zoom<br>
           CLICK select track<br>
           <kbd>F</kbd> follow &nbsp; <kbd>R</kbd> origin<br>
-          <kbd>1</kbd> metro <kbd>2</kbd> sector <kbd>3</kbd> texas <kbd>4</kbd> conus <kbd>5</kbd> space<br>
+          <kbd>1</kbd> metro <kbd>2</kbd> sector <kbd>3</kbd> texas <kbd>4</kbd> conus<br>
+          <kbd>5</kbd> space <kbd>6</kbd> meshcore<br>
           <kbd>G</kbd> grid &nbsp; <kbd>L</kbd> spikes &nbsp; <kbd>S</kbd> sweep<br>
           <kbd>?</kbd> this panel &nbsp; <kbd>ESC</kbd> deselect
         </div>
@@ -75,6 +78,7 @@
     </footer>
   </div>
 
+  <input id="mesh-file" type="file" accept=".json,application/json" hidden>
   <script type="module" src="js/app.js"></script>
 </body>
 </html>

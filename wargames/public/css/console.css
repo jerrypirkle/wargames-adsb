@@ -169,6 +169,44 @@ header button[data-view="space"].active {
   box-shadow: 0 0 10px rgba(255, 79, 168, 0.3);
 }
 
+header button[data-view="mesh"] {
+  color: var(--amber);
+  border-color: rgba(255, 210, 74, 0.45);
+}
+header button[data-view="mesh"]:hover,
+header button[data-view="mesh"].active {
+  color: #fff;
+  border-color: var(--amber);
+  background: rgba(255, 210, 74, 0.14);
+  box-shadow: 0 0 10px rgba(255, 210, 74, 0.28);
+}
+
+.mesh-empty {
+  padding: 1.4rem 1rem;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.mesh-empty button,
+.mesh-file-btn {
+  margin-top: 0.8rem;
+  background: transparent;
+  color: var(--cyan);
+  border: 1px solid var(--cyan-dim);
+  padding: 0.25rem 0.7rem;
+  font: inherit;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+.mesh-empty button:hover,
+.mesh-file-btn:hover {
+  border-color: var(--cyan);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(92, 232, 255, 0.25);
+}
+
 main {
   display: grid;
   grid-template-columns: 1fr minmax(300px, 360px);

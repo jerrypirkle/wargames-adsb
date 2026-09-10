@@ -10,6 +10,12 @@ import {
   isUas,
   categoryLabel,
 } from "./map.js";
+import {
+  parseMeshExport,
+  loadStoredMesh,
+  storeMeshRaw,
+  advertAge,
+} from "./mesh.js";
 
 const bootEl = document.getElementById("boot");
 const consoleEl = document.getElementById("console");
@@ -35,6 +41,7 @@ const state = {
   last: { x: 0, y: 0 },
   cursor: null,
   lastChrome: 0,
+  mesh: null,
 };
 
 function sleep(ms) {
@@ -116,7 +123,8 @@ function applySnapshot(snap) {
   state.snapshot = snap;
   state.snapAt = performance.now();
   if (snap.rx) map.setRx(snap.rx.lat, snap.rx.lon);
-  if (map.view === "space") sectorName.textContent = "SPACE SECTOR";
+  if (map.layer === "space") sectorName.textContent = "SPACE SECTOR";
+  else if (map.layer === "mesh") sectorName.textContent = "MESHCORE";
   else if (snap.title) sectorName.textContent = snap.title;
   const live = snap.mode === "live";
   linkState.textContent = live ? (snap.connected ? "LIVE LINK" : "LINK LOST") : "SIMULATION";
@@ -126,6 +134,10 @@ function applySnapshot(snap) {
     hex: `SAT${s.id}`,
     kind: "sat",
   }));
+  if (state.mesh) {
+    map.meshNodes = state.mesh.nodes;
+    map.meshLinks = state.mesh.links;
+  }
 }
 
 function connect() {
@@ -154,7 +166,8 @@ function tick(now) {
     map.rememberTrails(list, now / 1000);
     if (state.follow) {
       const ac = list.find((a) => a.hex === state.selected)
-        || map.spaceObjects.find((s) => s.hex === state.selected);
+        || map.spaceObjects.find((s) => s.hex === state.selected)
+        || map.meshNodes.find((s) => s.hex === state.selected);
       if (ac) map.follow(ac);
     }
     if (now - state.lastChrome > 250) {
@@ -184,7 +197,7 @@ function renderChrome(snap, list) {
   document.getElementById("f-rx").innerHTML =
     `RX <strong>${fmtLat(rx.lat)}  ${fmtLon(rx.lon)}</strong>`;
 
-  if (map.view === "space") {
+  if (map.layer === "space") {
     const iss = map.spaceObjects.find((s) => s.id === "25544");
     hudTl.innerHTML =
       `NORAD  /  SPACE SECTOR<br>` +
@@ -197,6 +210,23 @@ function renderChrome(snap, list) {
       || list.find((a) => a.hex === state.selected);
     if (sel && sel.kind === "sat") renderSatDetail(sel, rx);
     else renderDetail(sel, rx);
+  } else if (map.layer === "mesh") {
+    const nodes = state.mesh ? state.mesh.nodes : [];
+    const links = state.mesh ? state.mesh.links : [];
+    const withPos = nodes.filter((n) => n.lat != null);
+    document.getElementById("f-n").textContent = String(nodes.length);
+    document.getElementById("f-pos").textContent = String(withPos.length);
+    document.getElementById("f-src").textContent = "MESH";
+    if (uasEl) uasEl.textContent = String(links.length);
+    hudTl.innerHTML =
+      `MESHCORE  /  DFW ORIGIN<br>` +
+      `NODES   ${nodes.length}   LINKS  ${links.length}<br>` +
+      `SCALE   ${map.ppm.toFixed(2)} PX/NM<br>` +
+      (state.follow ? "FOLLOW  ON<br>" : "");
+    renderMeshTable(nodes, rx);
+    const sel = nodes.find((n) => n.hex === state.selected);
+    if (sel) renderMeshDetail(sel, rx, links);
+    else renderMeshEmpty();
   } else {
     hudTl.innerHTML =
       `${snap.callsign || "NORTEX"} / ${snap.title || "DFW SECTOR"}<br>` +
@@ -263,6 +293,64 @@ function renderTable(list, rx) {
   const top = tracksEl.scrollTop;
   tracksEl.innerHTML = html;
   tracksEl.scrollTop = top;
+}
+
+function renderMeshTable(nodes, rx) {
+  if (!nodes.length) {
+    tracksEl.innerHTML = `<div class="mesh-empty">
+      <div>NO MESHCORE EXPORT LOADED</div>
+      <button type="button" id="mesh-load-btn">LOAD EXPORT</button>
+    </div>`;
+    return;
+  }
+  const rows = [...nodes].sort((a, b) => {
+    const ra = rngOf(a, rx), rb = rngOf(b, rx);
+    if (ra == null && rb == null) return a.name.localeCompare(b.name);
+    if (ra == null) return 1;
+    if (rb == null) return -1;
+    return ra - rb;
+  });
+  let html = `<table><thead><tr>
+    <th>NODE</th><th>ROLE</th><th class="num">NM</th><th class="num">HEARD</th></tr></thead><tbody>`;
+  for (const n of rows) {
+    const rng = rngOf(n, rx);
+    const cls = n.hex === state.selected ? "sel" : "";
+    html += `<tr data-hex="${n.hex}" class="${cls}">
+      <td>${esc(n.name)}</td>
+      <td>${n.role}</td>
+      <td class="num">${rng != null ? rng.toFixed(1) : "—"}</td>
+      <td class="num">${advertAge(n.last_advert)}</td>
+    </tr>`;
+  }
+  html += "</tbody></table>";
+  const top = tracksEl.scrollTop;
+  tracksEl.innerHTML = html;
+  tracksEl.scrollTop = top;
+}
+
+function renderMeshEmpty() {
+  detailEl.innerHTML = `<h2>MESHCORE</h2>
+    <div class="kv">
+      <span class="k">STATUS</span><span class="v">NO SELECT</span>
+      <span class="k">HINT</span><span class="v">LOAD AN EXPORT OR CLICK A NODE</span>
+    </div>
+    <button type="button" class="mesh-file-btn" id="mesh-load-detail">LOAD EXPORT</button>`;
+}
+
+function renderMeshDetail(n, rx, links) {
+  const rng = rngOf(n, rx);
+  const nLinks = (links || []).filter((l) => l.a === n.hex || l.b === n.hex).length;
+  detailEl.innerHTML = `<h2>${esc(n.name)}</h2>
+    <div class="kv">
+      <span class="k">ROLE</span><span class="v hi">${n.role}</span>
+      <span class="k">TYPE</span><span class="v">${n.type}</span>
+      <span class="k">POS</span><span class="v">${fmtLatLong(n.lat, n.lon)}</span>
+      <span class="k">RNG</span><span class="v">${rng != null ? rng.toFixed(1) + " NM" : "NO POS"}</span>
+      <span class="k">LINKS</span><span class="v">${nLinks}</span>
+      <span class="k">HEARD</span><span class="v">${advertAge(n.last_advert)}</span>
+      <span class="k">ID</span><span class="v">${esc(n.key.slice(0, 8))}…</span>
+    </div>
+    <button type="button" class="mesh-file-btn" id="mesh-load-detail">LOAD EXPORT</button>`;
 }
 
 function renderSpaceTable(sats) {
@@ -434,27 +522,79 @@ function bind() {
     map.zoomAt(e.clientX - rect.left, e.clientY - rect.top, e.deltaY < 0 ? 1.12 : 1 / 1.12);
   }, { passive: false });
 
+  const meshFile = document.getElementById("mesh-file");
+  function openMeshFile() {
+    if (meshFile) meshFile.click();
+  }
+  function applyMesh(rawObj) {
+    state.mesh = parseMeshExport(rawObj);
+    storeMeshRaw(rawObj);
+    map.meshNodes = state.mesh.nodes;
+    map.meshLinks = state.mesh.links;
+    map._geoDirty = true;
+  }
+  if (meshFile) {
+    meshFile.addEventListener("change", async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        applyMesh(JSON.parse(text));
+        if (map.layer !== "mesh") setView("mesh");
+      } catch (err) {
+        console.warn("meshcore export", err);
+      }
+      e.target.value = "";
+    });
+  }
   tracksEl.addEventListener("click", (e) => {
+    if (e.target.id === "mesh-load-btn") {
+      openMeshFile();
+      return;
+    }
     const tr = e.target.closest("tr[data-hex]");
     if (tr) {
       select(tr.dataset.hex);
       const ac = map.aircraft.find((a) => a.hex === tr.dataset.hex)
-        || map.spaceObjects.find((s) => s.hex === tr.dataset.hex);
+        || map.spaceObjects.find((s) => s.hex === tr.dataset.hex)
+        || map.meshNodes.find((s) => s.hex === tr.dataset.hex);
       if (ac && ac.lat != null) {
         map.center = { lat: ac.lat, lon: ac.lon };
         map._geoDirty = true;
       }
     }
   });
+  detailEl.addEventListener("click", (e) => {
+    if (e.target.id === "mesh-load-detail") openMeshFile();
+  });
+
+  function syncViewButtons() {
+    document.querySelectorAll("header button[data-view]").forEach((b) => {
+      const v = b.dataset.view;
+      if (v === "space") b.classList.toggle("active", map.layer === "space");
+      else if (v === "mesh") b.classList.toggle("active", map.layer === "mesh");
+      else b.classList.toggle("active", map.layer !== "space" && map.view === v);
+    });
+  }
 
   function setView(name) {
     state.follow = false;
-    map.preset(name);
-    document.querySelectorAll("header button[data-view]").forEach((b) => {
-      b.classList.toggle("active", b.dataset.view === name);
-    });
-    if (name === "space") sectorName.textContent = "SPACE SECTOR";
-    else if (state.snapshot && state.snapshot.title) sectorName.textContent = state.snapshot.title;
+    if (name === "space") {
+      map.layer = "space";
+      map.preset("space");
+      sectorName.textContent = "SPACE SECTOR";
+    } else if (name === "mesh") {
+      map.layer = "mesh";
+      const geo = ["metro", "sector", "texas", "conus"].includes(map.view) ? map.view : "sector";
+      map.preset(geo);
+      sectorName.textContent = "MESHCORE";
+    } else {
+      if (map.layer === "space") map.layer = "air";
+      map.preset(name);
+      if (map.layer === "mesh") sectorName.textContent = "MESHCORE";
+      else if (state.snapshot && state.snapshot.title) sectorName.textContent = state.snapshot.title;
+    }
+    syncViewButtons();
   }
 
   document.querySelectorAll("header button[data-view]").forEach((btn) => {
@@ -475,7 +615,9 @@ function bind() {
       if (state.selected) state.follow = !state.follow;
     }
     if (e.key === "r" || e.key === "R") {
-      setView(map.view === "space" ? "space" : "sector");
+      if (map.layer === "space") setView("space");
+      else if (map.layer === "mesh") setView("mesh");
+      else setView("sector");
     }
     if (e.key === "g" || e.key === "G") {
       map.showGrid = !map.showGrid;
@@ -488,6 +630,7 @@ function bind() {
     if (e.key === "3") setView("texas");
     if (e.key === "4") setView("conus");
     if (e.key === "5") setView("space");
+    if (e.key === "6") setView("mesh");
     const step = 80;
     if (e.key === "ArrowLeft") map.panPx(step, 0);
     if (e.key === "ArrowRight") map.panPx(-step, 0);
@@ -503,6 +646,11 @@ async function main() {
     fetch("data/world-land.json").then((r) => r.json()),
   ]);
   map.setData(geo, places, world);
+  state.mesh = loadStoredMesh();
+  if (state.mesh) {
+    map.meshNodes = state.mesh.nodes;
+    map.meshLinks = state.mesh.links;
+  }
   map.preset("sector");
   document.querySelector('header button[data-view="sector"]').classList.add("active");
   bind();

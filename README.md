@@ -91,6 +91,7 @@ wargames/run/            dump1090 JSON (created at runtime, not committed)
 ## Notes
 
 - **Space Sector** (`5`) is a world map centered on the receiver. ISS, CSS, Hubble, and NOAA-19 are plotted from **NORAD TLEs** (Celestrak), with AOS/LOS relative to the SDR site. The dongle stays on 1090 MHz ADS-B — it does not retune to VHF satellite downlinks. Aircraft the radio is hearing still appear on that map.
+- **MeshCore** (`6`) uses the same metro / sector / Texas / CONUS zooms. Load a MeshCore contacts export (JSON) to plot companions, repeaters, and room servers, with inferred RF links between nearby repeaters. The file is parsed in the browser and is not uploaded to the server.
 - Frequency is **1090.000 MHz** ADS-B / Mode S. This UI does not decode UAT (978 MHz).
 - **UAS** contacts are ADS-B emitter category **B6** (UAV), plus callsigns containing UAS/UAV/DRONE. They draw as a green quadcopter mark. FAA Remote ID over Bluetooth/WiFi is a different radio and is not received by dump1090.
 - Gain, PPM correction, and adaptive-gain flags are dump1090’s problem — pass them when you start dump1090 yourself, or edit `start.sh`.

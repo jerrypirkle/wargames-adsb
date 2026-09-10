@@ -84,7 +84,10 @@ export class VectorMap {
     this.world = null;
     this.places = null;
     this.view = "sector";
+    this.layer = "air"; // air | space | mesh
     this.spaceObjects = [];
+    this.meshNodes = [];
+    this.meshLinks = [];
     this.showGrid = true;
     this.showSweep = true;
     this.showSpikes = false;
@@ -211,9 +214,11 @@ export class VectorMap {
 
   hit(x, y) {
     let best = null, bestD = 18;
-    const pool = this.view === "space"
+    const pool = this.layer === "space"
       ? [...this.spaceObjects, ...this.aircraft]
-      : this.aircraft;
+      : this.layer === "mesh"
+        ? this.meshNodes
+        : this.aircraft;
     for (const ac of pool) {
       if (ac.lat == null) continue;
       const [ax, ay] = this.project(ac.lat, ac.lon);
@@ -232,9 +237,12 @@ export class VectorMap {
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.drawImage(this._geoCanvas, 0, 0, this.w, this.h);
 
-    if (this.view === "space") {
+    if (this.layer === "space") {
       this._drawSatellites(ctx);
       this._drawAircraft(ctx);
+    } else if (this.layer === "mesh") {
+      if (this.showSweep) this._drawSweep(ctx, now);
+      this._drawMesh(ctx);
     } else {
       if (this.showSpikes) this._drawSpikes(ctx);
       this._drawTrails(ctx, now);
@@ -255,7 +263,7 @@ export class VectorMap {
     const ctx = this._geoCtx;
     this._prepare(ctx);
     if (this.showGrid) this._drawGrid(ctx);
-    if (this.view === "space") {
+    if (this.layer === "space") {
       this._drawWorld(ctx);
       this._drawRx(ctx);
       this._drawZoneTitle(ctx);
@@ -350,6 +358,70 @@ export class VectorMap {
     }
   }
 
+  _drawMesh(ctx) {
+    const byHex = new Map(this.meshNodes.map((n) => [n.hex, n]));
+    ctx.lineCap = "round";
+    for (const ln of this.meshLinks) {
+      const a = byHex.get(ln.a), b = byHex.get(ln.b);
+      if (!a || a.lat == null || !b || b.lat == null) continue;
+      const [x0, y0] = this.project(a.lat, a.lon);
+      const [x1, y1] = this.project(b.lat, b.lon);
+      ctx.beginPath();
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.strokeStyle = "rgba(92,232,255,0.32)";
+      ctx.lineWidth = 1.15;
+      ctx.shadowColor = "#5ce8ff";
+      ctx.shadowBlur = 6;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+    const colors = { 1: "#ffd24a", 2: "#5ce8ff", 3: "#ff4fa8" };
+    const labelAll = this.ppm > 7 || this.meshNodes.length < 28;
+    for (const n of this.meshNodes) {
+      if (n.lat == null) continue;
+      const [x, y] = this.project(n.lat, n.lon);
+      const sel = this.selected === n.hex;
+      const col = sel ? "#ff4fa8" : (colors[n.type] || "#5ce8ff");
+      const r = n.type === 2 ? 6 : 4.2;
+      ctx.save();
+      ctx.fillStyle = col;
+      ctx.shadowColor = col;
+      ctx.shadowBlur = sel ? 14 : 8;
+      ctx.beginPath();
+      if (n.type === 2) {
+        ctx.moveTo(x, y - r);
+        ctx.lineTo(x + r, y);
+        ctx.lineTo(x, y + r);
+        ctx.lineTo(x - r, y);
+        ctx.closePath();
+      } else if (n.type === 3) {
+        ctx.rect(x - r, y - r, r * 2, r * 2);
+      } else {
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+      }
+      ctx.fill();
+      ctx.restore();
+      if (sel) {
+        ctx.beginPath();
+        ctx.arc(x, y, 14, 0, Math.PI * 2);
+        ctx.strokeStyle = "#ff4fa8";
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+      }
+      if (sel || labelAll || this.hover === n.hex) {
+        ctx.font = "10px 'Share Tech Mono', monospace";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "bottom";
+        ctx.fillStyle = col;
+        ctx.shadowColor = col;
+        ctx.shadowBlur = 6;
+        ctx.fillText(n.name, x + 9, y - 3);
+        ctx.shadowBlur = 0;
+      }
+    }
+  }
+
   _drawZoneTitle(ctx) {
     ctx.save();
     ctx.font = "13px Orbitron, 'Share Tech Mono', sans-serif";
@@ -358,7 +430,8 @@ export class VectorMap {
     ctx.textBaseline = "bottom";
     ctx.shadowColor = "#5ce8ff";
     ctx.shadowBlur = 12;
-    const title = this.view === "space" ? "SPACE SURVEILLANCE  //  DFW ORIGIN"
+    const title = this.layer === "space" ? "SPACE SURVEILLANCE  //  DFW ORIGIN"
+      : this.layer === "mesh" ? "MESHCORE  //  DFW ORIGIN"
       : (this.ppm < 1.6 || this.ppm > 22) ? "" : "DFW AIR DEFENSE ZONE";
     if (title) ctx.fillText(title, this.w / 2, this.h - 22);
     ctx.restore();
