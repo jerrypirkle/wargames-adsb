@@ -181,6 +181,13 @@ header button[data-view="mesh"].active {
   box-shadow: 0 0 10px rgba(255, 210, 74, 0.28);
 }
 
+#tog-airspace.active {
+  color: #fff;
+  border-color: var(--cyan);
+  background: rgba(92, 232, 255, 0.12);
+  box-shadow: 0 0 10px rgba(92, 232, 255, 0.25);
+}
+
 .mesh-empty {
   padding: 1.4rem 1rem;
   letter-spacing: 0.14em;

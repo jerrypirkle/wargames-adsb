@@ -1,0 +1,49 @@
+{
+  "note": "Schematic FAA airspace for the CRT map — not a legal sectional. Radii in nautical miles.",
+  "class_b": [
+    {"id": "DFW", "name": "DALLAS-FORT WORTH", "lat": 32.8998, "lon": -97.0403, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 11000},
+    {"id": "IAH", "name": "HOUSTON", "lat": 29.9902, "lon": -95.3368, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 10000},
+    {"id": "ATL", "name": "ATLANTA", "lat": 33.6407, "lon": -84.4277, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 12500},
+    {"id": "ORD", "name": "CHICAGO", "lat": 41.9742, "lon": -87.9073, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 10000},
+    {"id": "LAX", "name": "LOS ANGELES", "lat": 33.9416, "lon": -118.4085, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 10000},
+    {"id": "JFK", "name": "NEW YORK", "lat": 40.6413, "lon": -73.7781, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 7000},
+    {"id": "DEN", "name": "DENVER", "lat": 39.8561, "lon": -104.6737, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 12000},
+    {"id": "PHX", "name": "PHOENIX", "lat": 33.4342, "lon": -112.0116, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 10000},
+    {"id": "SFO", "name": "SAN FRANCISCO", "lat": 37.6213, "lon": -122.3790, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 10000},
+    {"id": "SEA", "name": "SEATTLE", "lat": 47.4502, "lon": -122.3088, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 10000},
+    {"id": "MIA", "name": "MIAMI", "lat": 25.7959, "lon": -80.2870, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 7000},
+    {"id": "MSP", "name": "MINNEAPOLIS", "lat": 44.8848, "lon": -93.2223, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 10000},
+    {"id": "DTW", "name": "DETROIT", "lat": 42.2162, "lon": -83.3554, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 10000},
+    {"id": "CLT", "name": "CHARLOTTE", "lat": 35.2140, "lon": -80.9431, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 10000},
+    {"id": "LAS", "name": "LAS VEGAS", "lat": 36.0840, "lon": -115.1537, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 10000},
+    {"id": "PHL", "name": "PHILADELPHIA", "lat": 39.8721, "lon": -75.2411, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 7000},
+    {"id": "BOS", "name": "BOSTON", "lat": 42.3656, "lon": -71.0096, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 7000},
+    {"id": "IAD", "name": "WASHINGTON", "lat": 38.9531, "lon": -77.4565, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 10000},
+    {"id": "SLC", "name": "SALT LAKE", "lat": 40.7899, "lon": -111.9791, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 10000},
+    {"id": "TPA", "name": "TAMPA", "lat": 27.9755, "lon": -82.5332, "rings_nm": [10, 20], "veil_nm": 30, "ceil": 10000}
+  ],
+  "class_c": [
+    {"id": "AUS", "name": "AUSTIN", "lat": 30.1945, "lon": -97.6699, "r_nm": 10, "ceil": 4500},
+    {"id": "SAT", "name": "SAN ANTONIO", "lat": 29.5337, "lon": -98.4698, "r_nm": 10, "ceil": 4800},
+    {"id": "OKC", "name": "OKLAHOMA CITY", "lat": 35.3931, "lon": -97.6007, "r_nm": 10, "ceil": 5300},
+    {"id": "TUL", "name": "TULSA", "lat": 36.1984, "lon": -95.8881, "r_nm": 10, "ceil": 4700},
+    {"id": "ELP", "name": "EL PASO", "lat": 31.8073, "lon": -106.3776, "r_nm": 10, "ceil": 8000},
+    {"id": "LBB", "name": "LUBBOCK", "lat": 33.6636, "lon": -101.8228, "r_nm": 10, "ceil": 6700},
+    {"id": "AMA", "name": "AMARILLO", "lat": 35.2194, "lon": -101.7059, "r_nm": 10, "ceil": 6700},
+    {"id": "CRP", "name": "CORPUS CHRISTI", "lat": 27.7704, "lon": -97.5012, "r_nm": 10, "ceil": 4000}
+  ],
+  "class_d": [
+    {"id": "ACT", "name": "WACO", "lat": 31.6113, "lon": -97.2305, "r_nm": 4.4, "ceil": 3400},
+    {"id": "SPS", "name": "WICHITA FALLS", "lat": 33.9888, "lon": -98.4919, "r_nm": 4.5, "ceil": 3700},
+    {"id": "ADS", "name": "ADDISON", "lat": 32.9686, "lon": -96.8364, "r_nm": 4.0, "ceil": 3000},
+    {"id": "AFW", "name": "ALLIANCE", "lat": 32.9876, "lon": -97.3188, "r_nm": 4.5, "ceil": 3000},
+    {"id": "FTW", "name": "MEACHAM", "lat": 32.8198, "lon": -97.3624, "r_nm": 4.4, "ceil": 3200},
+    {"id": "NFW", "name": "NAS JRB", "lat": 32.7692, "lon": -97.4415, "r_nm": 4.5, "ceil": 3000},
+    {"id": "FWS", "name": "SPINKS", "lat": 32.5654, "lon": -97.3084, "r_nm": 4.0, "ceil": 3000},
+    {"id": "GKY", "name": "ARLINGTON", "lat": 32.6639, "lon": -97.0944, "r_nm": 4.0, "ceil": 2500},
+    {"id": "DTO", "name": "DENTON", "lat": 33.2017, "lon": -97.1986, "r_nm": 4.0, "ceil": 2900},
+    {"id": "RBD", "name": "DALLAS EXEC", "lat": 32.6809, "lon": -96.8682, "r_nm": 4.5, "ceil": 3000},
+    {"id": "TKI", "name": "MCKINNEY", "lat": 33.1779, "lon": -96.5905, "r_nm": 4.0, "ceil": 2900},
+    {"id": "HQZ", "name": "MESQUITE", "lat": 32.7473, "lon": -96.5304, "r_nm": 4.0, "ceil": 2400}
+  ]
+}

@@ -91,6 +91,8 @@ export class VectorMap {
     this.showGrid = true;
     this.showSweep = true;
     this.showSpikes = false;
+    this.showAirspace = false;
+    this.airspace = null;
     this.sweep = 0;
     this.selected = null;
     this.hover = null;
@@ -101,10 +103,11 @@ export class VectorMap {
     this._geoCtx = this._geoCanvas.getContext("2d");
   }
 
-  setData(geo, places, world) {
+  setData(geo, places, world, airspace) {
     this.geo = geo;
     this.places = places;
     if (world) this.world = world;
+    if (airspace) this.airspace = airspace;
     this._geoDirty = true;
   }
 
@@ -273,6 +276,7 @@ export class VectorMap {
       this._drawHighways(ctx);
       this._drawRangeRings(ctx);
       this._drawPlaces(ctx);
+      this._drawAirspace(ctx);
       this._drawRx(ctx);
       this._drawZoneTitle(ctx);
     }
@@ -662,6 +666,82 @@ export class VectorMap {
         ctx.fillText(m.name, x + 8, y);
       }
     }
+  }
+
+  _drawAirspace(ctx) {
+    if (!this.showAirspace || !this.airspace || this.layer === "space") return;
+    const ppm = this.ppm;
+    const showC = ppm >= 0.7;
+    const showD = ppm >= 3.5;
+
+    const ring = (lat, lon, nm) => {
+      const [x, y] = this.project(lat, lon);
+      const r = nm * ppm;
+      if (r < 4 || r > Math.max(this.w, this.h) * 1.6) return null;
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      return { x, y, r };
+    };
+    const label = (lat, lon, nm, text, color) => {
+      const [x, y] = this.project(lat, lon);
+      const r = nm * ppm;
+      ctx.fillStyle = color;
+      ctx.font = "10px 'Share Tech Mono', monospace";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, x + r + 6, y);
+    };
+
+    for (const b of this.airspace.class_b || []) {
+      ctx.strokeStyle = "rgba(92,232,255,0.85)";
+      ctx.shadowColor = "#5ce8ff";
+      ctx.shadowBlur = 8;
+      ctx.lineWidth = 1.4;
+      ctx.setLineDash([]);
+      for (const nm of b.rings_nm || []) {
+        if (ring(b.lat, b.lon, nm)) ctx.stroke();
+      }
+      if (b.veil_nm) {
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = "rgba(92,232,255,0.4)";
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 6]);
+        if (ring(b.lat, b.lon, b.veil_nm)) ctx.stroke();
+        ctx.setLineDash([]);
+      }
+      ctx.shadowBlur = 0;
+      const outer = (b.rings_nm && b.rings_nm[b.rings_nm.length - 1]) || b.veil_nm || 20;
+      if (ppm * outer > 18) label(b.lat, b.lon, outer, `B ${b.id}`, "#5ce8ff");
+    }
+
+    if (showC) {
+      for (const c of this.airspace.class_c || []) {
+        ctx.strokeStyle = "rgba(255,79,168,0.8)";
+        ctx.shadowColor = "#ff4fa8";
+        ctx.shadowBlur = 6;
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([]);
+        if (ring(c.lat, c.lon, c.r_nm)) ctx.stroke();
+        ctx.shadowBlur = 0;
+        if (ppm * c.r_nm > 16) label(c.lat, c.lon, c.r_nm, `C ${c.id}`, "#ff8ad4");
+      }
+    }
+
+    if (showD) {
+      for (const d of this.airspace.class_d || []) {
+        ctx.strokeStyle = "rgba(255,210,74,0.75)";
+        ctx.shadowColor = "#ffd24a";
+        ctx.shadowBlur = 5;
+        ctx.lineWidth = 1.05;
+        ctx.setLineDash([3, 4]);
+        if (ring(d.lat, d.lon, d.r_nm)) ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.shadowBlur = 0;
+        if (ppm * d.r_nm > 14) label(d.lat, d.lon, d.r_nm, `D ${d.id}`, "#ffd24a");
+      }
+    }
+    ctx.shadowBlur = 0;
+    ctx.setLineDash([]);
   }
 
   _drawRx(ctx) {

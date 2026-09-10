@@ -601,6 +601,18 @@ function bind() {
     btn.addEventListener("click", () => setView(btn.dataset.view));
   });
 
+  function toggleAirspace() {
+    map.showAirspace = !map.showAirspace;
+    map._geoDirty = true;
+    const btn = document.getElementById("tog-airspace");
+    if (btn) btn.classList.toggle("active", map.showAirspace);
+    document.querySelectorAll(".as-leg").forEach((el) => {
+      el.hidden = !map.showAirspace;
+    });
+  }
+  const asBtn = document.getElementById("tog-airspace");
+  if (asBtn) asBtn.addEventListener("click", toggleAirspace);
+
   window.addEventListener("keydown", (e) => {
     if (e.key === "?" || (e.key === "/" && e.shiftKey)) {
       helpEl.classList.toggle("show");
@@ -623,6 +635,7 @@ function bind() {
       map.showGrid = !map.showGrid;
       map._geoDirty = true;
     }
+    if (e.key === "a" || e.key === "A") toggleAirspace();
     if (e.key === "l" || e.key === "L") map.showSpikes = !map.showSpikes;
     if (e.key === "s" || e.key === "S") map.showSweep = !map.showSweep;
     if (e.key === "1") setView("metro");
@@ -640,12 +653,13 @@ function bind() {
 }
 
 async function main() {
-  const [geo, places, world] = await Promise.all([
+  const [geo, places, world, airspace] = await Promise.all([
     fetch("data/us-states.json").then((r) => r.json()),
     fetch("data/places.json").then((r) => r.json()),
     fetch("data/world-land.json").then((r) => r.json()),
+    fetch("data/airspace.json").then((r) => r.json()),
   ]);
-  map.setData(geo, places, world);
+  map.setData(geo, places, world, airspace);
   state.mesh = loadStoredMesh();
   if (state.mesh) {
     map.meshNodes = state.mesh.nodes;
@@ -655,7 +669,9 @@ async function main() {
   document.querySelector('header button[data-view="sector"]').classList.add("active");
   bind();
   connect();
-  if (new URLSearchParams(location.search).has("skipboot")) {
+  const qs = new URLSearchParams(location.search);
+  if (qs.has("airspace")) document.getElementById("tog-airspace")?.click();
+  if (qs.has("skipboot")) {
     bootEl.remove();
     consoleEl.classList.remove("hidden");
   } else {

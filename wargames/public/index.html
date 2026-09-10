@@ -27,6 +27,8 @@
         <button data-view="space">SPACE SECTOR</button>
         <span class="sep">//</span>
         <button data-view="mesh">MESHCORE</button>
+        <span class="sep">//</span>
+        <button type="button" id="tog-airspace">AIRSPACE</button>
       </div>
       <span class="clock" id="clock">00:00:00</span>
     </header>
@@ -41,6 +43,9 @@
           <span><i class="swatch" style="background:#5ce8ff"></i>HIGH</span>
           <span><i class="swatch" style="background:#ff4fa8"></i>SEL</span>
           <span><i class="swatch" style="background:#3cff9a"></i>UAS</span>
+          <span class="as-leg" hidden><i class="swatch" style="background:#5ce8ff"></i>B</span>
+          <span class="as-leg" hidden><i class="swatch" style="background:#ff4fa8"></i>C</span>
+          <span class="as-leg" hidden><i class="swatch" style="background:#ffd24a"></i>D</span>
         </div>
         <div class="hud" id="hud-br"></div>
         <div id="cursor-readout"></div>
@@ -51,7 +56,7 @@
           <kbd>F</kbd> follow &nbsp; <kbd>R</kbd> origin<br>
           <kbd>1</kbd> metro <kbd>2</kbd> sector <kbd>3</kbd> texas <kbd>4</kbd> conus<br>
           <kbd>5</kbd> space <kbd>6</kbd> meshcore<br>
-          <kbd>G</kbd> grid &nbsp; <kbd>L</kbd> spikes &nbsp; <kbd>S</kbd> sweep<br>
+          <kbd>G</kbd> grid &nbsp; <kbd>A</kbd> airspace &nbsp; <kbd>L</kbd> spikes &nbsp; <kbd>S</kbd> sweep<br>
           <kbd>?</kbd> this panel &nbsp; <kbd>ESC</kbd> deselect
         </div>
         <div class="scanlines"></div>
