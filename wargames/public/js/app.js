@@ -573,8 +573,14 @@ function bind() {
       const v = b.dataset.view;
       if (v === "space") b.classList.toggle("active", map.layer === "space");
       else if (v === "mesh") b.classList.toggle("active", map.layer === "mesh");
+      else if (v === "air") b.classList.toggle("active", map.layer === "air");
       else b.classList.toggle("active", map.layer !== "space" && map.view === v);
     });
+  }
+
+  function airTitle() {
+    if (state.snapshot && state.snapshot.title) return state.snapshot.title;
+    return "DFW SECTOR";
   }
 
   function setView(name) {
@@ -588,11 +594,15 @@ function bind() {
       const geo = ["metro", "sector", "texas", "conus"].includes(map.view) ? map.view : "sector";
       map.preset(geo);
       sectorName.textContent = "MESHCORE";
+    } else if (name === "air") {
+      map.layer = "air";
+      map.preset("sector");
+      sectorName.textContent = airTitle();
     } else {
       if (map.layer === "space") map.layer = "air";
       map.preset(name);
       if (map.layer === "mesh") sectorName.textContent = "MESHCORE";
-      else if (state.snapshot && state.snapshot.title) sectorName.textContent = state.snapshot.title;
+      else sectorName.textContent = airTitle();
     }
     syncViewButtons();
   }
@@ -650,6 +660,8 @@ function bind() {
     if (e.key === "ArrowUp") map.panPx(0, step);
     if (e.key === "ArrowDown") map.panPx(0, -step);
   });
+
+  syncViewButtons();
 }
 
 async function main() {
@@ -666,7 +678,6 @@ async function main() {
     map.meshLinks = state.mesh.links;
   }
   map.preset("sector");
-  document.querySelector('header button[data-view="sector"]').classList.add("active");
   bind();
   connect();
   const qs = new URLSearchParams(location.search);

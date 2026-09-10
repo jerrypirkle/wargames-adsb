@@ -89,6 +89,7 @@ body {
 header, footer {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 1.2rem;
   padding: 0.45rem 0.9rem;
   border-bottom: 1px solid var(--line);
@@ -115,7 +116,15 @@ header .brand {
   text-shadow: 0 0 10px var(--cyan);
 }
 
-header .sep { color: var(--cyan-dim); }
+header .sep {
+  color: var(--cyan-dim);
+  padding: 0 0.2rem;
+}
+header .btns .sep {
+  color: var(--cyan);
+  opacity: 0.55;
+  align-self: center;
+}
 
 header .live {
   color: var(--green);
@@ -135,6 +144,8 @@ header .clock {
 
 header .btns {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 0.35rem;
 }
 

@@ -71,6 +71,7 @@ The console prefers dump1090’s `--write-json` `aircraft.json` (RSSI, stats). I
 | wheel | zoom |
 | click | select track |
 | `1` `2` `3` `4` | metro / sector / texas / conus |
+| AIR SECTOR | default ADS-B map (sector zoom) |
 | `5` `6` | space sector / meshcore |
 | `F` | follow selected |
 | `R` | reset to origin |
@@ -91,6 +92,7 @@ wargames/run/            dump1090 JSON (created at runtime, not committed)
 
 ## Notes
 
+- **Air Sector** is the default ADS-B map (DFW sector zoom). Use it to leave Space Sector or MeshCore.
 - **Space Sector** (`5`) is a world map centered on the receiver. ISS, CSS, Hubble, and NOAA-19 are plotted from **NORAD TLEs** (Celestrak), with AOS/LOS relative to the SDR site. The dongle stays on 1090 MHz ADS-B — it does not retune to VHF satellite downlinks. Aircraft the radio is hearing still appear on that map.
 - **MeshCore** (`6`) uses the same metro / sector / Texas / CONUS zooms. Load a MeshCore contacts export (JSON) to plot companions, repeaters, and room servers, with inferred RF links between nearby repeaters. The file is parsed in the browser and is not uploaded to the server.
 - **AIRSPACE** (`A`) draws schematic FAA Class B (cyan), Class C (magenta), and Class D (amber dashed) rings. DFW Bravo plus the 30 NM Mode C veil, other CONUS Bravos, Texas Charlies, and DFW-area Deltas. This is a CRT overlay, not a legal sectional. Hidden on Space Sector. Class C appears from Texas zoom in; Class D from metro/sector.
